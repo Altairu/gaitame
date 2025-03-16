@@ -1,0 +1,3 @@
+[console_scripts]
+rviznode = gaitamepkg.rviznode:main
+serialnode = gaitamepkg.serialnode:main

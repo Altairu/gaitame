@@ -1,0 +1,31 @@
+[1.689s] Invoking command in '/home/altair/gaitame/src/gaitamepkg': PYTHONPATH=/home/altair/gaitame/build/gaitamepkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/gaitamepkg build --build-base /home/altair/gaitame/build/gaitamepkg/build install --record /home/altair/gaitame/build/gaitamepkg/install.log --single-version-externally-managed install_data
+[1.922s] /home/altair/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:261: UserWarning: Unknown distribution option: 'tests_require'
+[1.922s]   warnings.warn(msg)
+[2.092s] running egg_info
+[2.119s] writing ../../build/gaitamepkg/gaitamepkg.egg-info/PKG-INFO
+[2.120s] writing dependency_links to ../../build/gaitamepkg/gaitamepkg.egg-info/dependency_links.txt
+[2.120s] writing entry points to ../../build/gaitamepkg/gaitamepkg.egg-info/entry_points.txt
+[2.120s] writing requirements to ../../build/gaitamepkg/gaitamepkg.egg-info/requires.txt
+[2.120s] writing top-level names to ../../build/gaitamepkg/gaitamepkg.egg-info/top_level.txt
+[2.192s] reading manifest file '../../build/gaitamepkg/gaitamepkg.egg-info/SOURCES.txt'
+[2.193s] writing manifest file '../../build/gaitamepkg/gaitamepkg.egg-info/SOURCES.txt'
+[2.193s] running build
+[2.194s] running build_py
+[2.195s] copying gaitamepkg/rviznode.py -> /home/altair/gaitame/build/gaitamepkg/build/lib/gaitamepkg
+[2.198s] copying gaitamepkg/__init__.py -> /home/altair/gaitame/build/gaitamepkg/build/lib/gaitamepkg
+[2.200s] copying gaitamepkg/serialnode.py -> /home/altair/gaitame/build/gaitamepkg/build/lib/gaitamepkg
+[2.203s] running install
+[2.214s] running install_lib
+[2.243s] copying /home/altair/gaitame/build/gaitamepkg/build/lib/gaitamepkg/serialnode.py -> /home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages/gaitamepkg
+[2.244s] byte-compiling /home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages/gaitamepkg/serialnode.py to serialnode.cpython-310.pyc
+[2.247s] running install_data
+[2.251s] copying resource/gaitamepkg -> /home/altair/gaitame/install/gaitamepkg/share/ament_index/resource_index/packages
+[2.254s] copying package.xml -> /home/altair/gaitame/install/gaitamepkg/share/gaitamepkg
+[2.256s] running install_egg_info
+[2.288s] removing '/home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages/gaitamepkg-0.0.0-py3.10.egg-info' (and everything under it)
+[2.288s] Copying ../../build/gaitamepkg/gaitamepkg.egg-info to /home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages/gaitamepkg-0.0.0-py3.10.egg-info
+[2.289s] running install_scripts
+[2.609s] Installing rviznode script to /home/altair/gaitame/install/gaitamepkg/lib/gaitamepkg
+[2.610s] Installing serialnode script to /home/altair/gaitame/install/gaitamepkg/lib/gaitamepkg
+[2.610s] writing list of installed files to '/home/altair/gaitame/build/gaitamepkg/install.log'
+[2.680s] Invoked command in '/home/altair/gaitame/src/gaitamepkg' returned '0': PYTHONPATH=/home/altair/gaitame/build/gaitamepkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/gaitamepkg build --build-base /home/altair/gaitame/build/gaitamepkg/build install --record /home/altair/gaitame/build/gaitamepkg/install.log --single-version-externally-managed install_data

@@ -1,0 +1,21 @@
+running develop
+running egg_info
+creating gaitamepkg.egg-info
+writing gaitamepkg.egg-info/PKG-INFO
+writing dependency_links to gaitamepkg.egg-info/dependency_links.txt
+writing entry points to gaitamepkg.egg-info/entry_points.txt
+writing requirements to gaitamepkg.egg-info/requires.txt
+writing top-level names to gaitamepkg.egg-info/top_level.txt
+writing manifest file 'gaitamepkg.egg-info/SOURCES.txt'
+reading manifest file 'gaitamepkg.egg-info/SOURCES.txt'
+writing manifest file 'gaitamepkg.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages/gaitamepkg.egg-link (link to .)
+Installing rviznode script to /home/altair/gaitame/install/gaitamepkg/lib/gaitamepkg
+Installing serialnode script to /home/altair/gaitame/install/gaitamepkg/lib/gaitamepkg
+
+Installed /home/altair/gaitame/build/gaitamepkg
+running symlink_data
+creating /home/altair/gaitame/install/gaitamepkg/share/ament_index/resource_index/packages
+symbolically linking /home/altair/gaitame/build/gaitamepkg/resource/gaitamepkg -> /home/altair/gaitame/install/gaitamepkg/share/ament_index/resource_index/packages
+symbolically linking /home/altair/gaitame/build/gaitamepkg/package.xml -> /home/altair/gaitame/install/gaitamepkg/share/gaitamepkg

@@ -1,0 +1,20 @@
+[3.212s] Invoking command in '/home/altair/gaitame/build/gaitamepkg': PYTHONPATH=/home/altair/gaitame/build/gaitamepkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/altair/gaitame/build/gaitamepkg/build --no-deps symlink_data
+[3.863s] /home/altair/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:261: UserWarning: Unknown distribution option: 'tests_require'
+[3.864s]   warnings.warn(msg)
+[4.608s] running develop
+[5.381s] running egg_info
+[5.424s] writing gaitamepkg.egg-info/PKG-INFO
+[5.425s] writing dependency_links to gaitamepkg.egg-info/dependency_links.txt
+[5.425s] writing entry points to gaitamepkg.egg-info/entry_points.txt
+[5.425s] writing requirements to gaitamepkg.egg-info/requires.txt
+[5.425s] writing top-level names to gaitamepkg.egg-info/top_level.txt
+[5.556s] reading manifest file 'gaitamepkg.egg-info/SOURCES.txt'
+[5.568s] writing manifest file 'gaitamepkg.egg-info/SOURCES.txt'
+[5.740s] running build_ext
+[5.740s] Creating /home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages/gaitamepkg.egg-link (link to .)
+[5.741s] Installing rviznode script to /home/altair/gaitame/install/gaitamepkg/lib/gaitamepkg
+[5.741s] Installing serialnode script to /home/altair/gaitame/install/gaitamepkg/lib/gaitamepkg
+[5.741s] 
+[5.741s] Installed /home/altair/gaitame/build/gaitamepkg
+[5.742s] running symlink_data
+[5.785s] Invoked command in '/home/altair/gaitame/build/gaitamepkg' returned '0': PYTHONPATH=/home/altair/gaitame/build/gaitamepkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/altair/gaitame/build/gaitamepkg/build --no-deps symlink_data

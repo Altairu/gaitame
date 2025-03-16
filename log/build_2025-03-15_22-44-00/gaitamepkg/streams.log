@@ -1,0 +1,22 @@
+[1.489s] Invoking command in '/home/altair/gaitame/build/gaitamepkg': PYTHONPATH=/home/altair/gaitame/build/gaitamepkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/altair/gaitame/build/gaitamepkg/build --no-deps symlink_data --force
+[1.737s] /home/altair/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:261: UserWarning: Unknown distribution option: 'tests_require'
+[1.737s]   warnings.warn(msg)
+[2.104s] running develop
+[2.503s] running egg_info
+[2.567s] writing gaitamepkg.egg-info/PKG-INFO
+[2.567s] writing dependency_links to gaitamepkg.egg-info/dependency_links.txt
+[2.567s] writing entry points to gaitamepkg.egg-info/entry_points.txt
+[2.567s] writing requirements to gaitamepkg.egg-info/requires.txt
+[2.568s] writing top-level names to gaitamepkg.egg-info/top_level.txt
+[2.638s] reading manifest file 'gaitamepkg.egg-info/SOURCES.txt'
+[2.640s] writing manifest file 'gaitamepkg.egg-info/SOURCES.txt'
+[2.734s] running build_ext
+[2.735s] Creating /home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages/gaitamepkg.egg-link (link to .)
+[2.736s] Installing rviznode script to /home/altair/gaitame/install/gaitamepkg/lib/gaitamepkg
+[2.736s] Installing serialnode script to /home/altair/gaitame/install/gaitamepkg/lib/gaitamepkg
+[2.736s] 
+[2.736s] Installed /home/altair/gaitame/build/gaitamepkg
+[2.736s] running symlink_data
+[2.737s] symbolically linking /home/altair/gaitame/build/gaitamepkg/resource/gaitamepkg -> /home/altair/gaitame/install/gaitamepkg/share/ament_index/resource_index/packages
+[2.737s] symbolically linking /home/altair/gaitame/build/gaitamepkg/package.xml -> /home/altair/gaitame/install/gaitamepkg/share/gaitamepkg
+[2.793s] Invoked command in '/home/altair/gaitame/build/gaitamepkg' returned '0': PYTHONPATH=/home/altair/gaitame/build/gaitamepkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/altair/gaitame/build/gaitamepkg/build --no-deps symlink_data --force
