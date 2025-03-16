@@ -47,10 +47,6 @@ class SerialNode(Node):
             self.get_logger().error(f"Failed to open serial port: {e}")
             return
         self.tf_broadcaster = TransformBroadcaster(self)
-        # 状態変数：現在のオイラー角 (ラジアン)
-        self.roll = 0.0
-        self.pitch = 0.0
-        self.yaw = 0.0
         self.last_time = self.get_clock().now()
         # タイマー周期を0.05秒から0.005秒に変更して高頻度に呼び出す
         self.create_timer(0.005, self.timer_callback)
@@ -88,37 +84,32 @@ class SerialNode(Node):
 
     def timer_callback(self):
         try:
-            line = self.get_csv_line()
-            if line is None:
+            # 1行目: センサ生データ（6要素）-> 読み捨てまたはログ出力
+            sensor_line = self.get_csv_line()
+            if sensor_line is None:
                 return
-            parts = line.split(',')
-            if len(parts) < 6:
-                self.get_logger().warn(f"Incomplete data: {line}")
+            # （オプション: ログ出力）
+            self.get_logger().debug(f"Sensor data: {sensor_line}")
+            
+            # 2行目: 姿勢データ（roll,pitch,yaw: 3要素, 単位: degree）
+            orientation_line = self.get_csv_line()
+            if orientation_line is None:
                 return
-            # CSV形式:
-            #  - ax, ay, az: 加速度センサーの各軸の値 (m/s^2)
-            #  - gx, gy, gz: ジャイロスコープの各軸の値 (degree/sec)
-            ax, ay, az, gx, gy, gz = map(float, parts[:6])
+            parts = orientation_line.split(',')
+            if len(parts) != 3:
+                self.get_logger().warn(f"Incomplete orientation data: {orientation_line}")
+                return
+            # 取得した姿勢は degree なので、ラジアンに変換
+            roll_deg, pitch_deg, yaw_deg = map(float, parts)
+            roll_rad = roll_deg * (math.pi/180)
+            pitch_rad = pitch_deg * (math.pi/180)
+            yaw_rad = yaw_deg * (math.pi/180)
             
             current_time = self.get_clock().now()
-            dt = (current_time - self.last_time).nanoseconds / 1e9
-            self.last_time = current_time
-            # センサのジャイロデータは degree/sec で出力されるので、
-            # ラジアンに変換するための変換係数 (π/180) を適用
-            conv = math.pi / 180  
-            self.roll  += gx * conv * dt
-            self.pitch += gy * conv * dt
-            self.yaw   += gz * conv * dt
-            
-            # yawを 0〜2π の範囲に正規化（これによりログ上で負の値がなくなります）
-            self.yaw = self.yaw % (2 * math.pi)
-            
-            
-            quat = euler_to_quaternion(self.roll, self.pitch, self.yaw)
+            quat = euler_to_quaternion(roll_rad, pitch_rad, yaw_rad)
             self.publish_imu_data(quat, current_time)
-            # info_once を info に置換
             self.get_logger().info(
-                f"CSV: ax={ax:.2f}, ay={ay:.2f}, az={az:.2f}, roll={self.roll:.2f}, pitch={self.pitch:.2f}, yaw={self.yaw:.2f}"
+                f"Orientation: roll={roll_deg:.2f}°, pitch={pitch_deg:.2f}°, yaw={yaw_deg:.2f}°"
             )
         except Exception as e:
             self.get_logger().error(f"Error: {e}")

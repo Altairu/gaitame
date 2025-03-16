@@ -24,7 +24,7 @@ def quaternion_to_euler(x, y, z, w):
     roll_deg = math.degrees(roll)
     pitch_deg = math.degrees(pitch)
     yaw_deg = math.degrees(yaw)
-    # yaw角を 0～360 度の範囲に正規化
+    # yaw角を 0～360 度に正規化
     if yaw_deg < 0:
         yaw_deg += 360
     return roll_deg, pitch_deg, yaw_deg
@@ -37,7 +37,7 @@ class RvizNode(Node):
 
     def listener_callback(self, msg: PoseStamped):
         self.get_logger().info(f"Received PoseStamped: {msg}")
-        # quaternion からオイラー角を得る
+        # 受信したPoseStampedは、マイコン側で計算された姿勢データをもとに生成されています。
         x = msg.pose.orientation.x
         y = msg.pose.orientation.y
         z = msg.pose.orientation.z
@@ -48,14 +48,13 @@ class RvizNode(Node):
         marker.header = msg.header
         marker.ns = "imu"
         marker.id = 0
-        marker.type = Marker.TEXT_VIEW_FACING  # 変更：テキスト表示
+        marker.type = Marker.TEXT_VIEW_FACING
         marker.action = Marker.ADD
         marker.pose.position.x = 0.0
         marker.pose.position.y = 0.0
-        marker.pose.position.z = 0.5  # テキスト表示位置調整
-        # テキストにオイラー角を表示
+        marker.pose.position.z = 0.5
         marker.text = f"Roll: {roll:.1f}\nPitch: {pitch:.1f}\nYaw: {yaw:.1f}"
-        marker.scale.z = 0.4  # テキストサイズの調整
+        marker.scale.z = 0.4
         marker.color.a = 1.0
         marker.color.r = 1.0
         marker.color.g = 1.0
