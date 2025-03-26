@@ -5,8 +5,8 @@
 マイコン用コードは [cxd5602pwbimu_localizer_arduino](https://github.com/hijimasa/cxd5602pwbimu_localizer_arduino) リポジトリから取得し、必要に応じてカスタマイズしています。
 
 ## フォルダ構成
-- `gaitame/gaitame/`
-  - マイコン用プログラム (Arduino IDE 用) の `gaitame.ino`
+- `gaitame/cxd5602pwbimu_localizer_arduino/`
+  - マイコン用プログラム (Arduino IDE 用) の `cxd5602pwbimu_localizer_arduino.ino`
 - `gaitame/src/gaitamepkg/gaitamepkg/`
   - ROS2 ノード用プログラム
     - `serialnode.py`: シリアル通信でマイコンからIMUデータと計算済み姿勢データを受信し、PoseStamped および TF で配信する
