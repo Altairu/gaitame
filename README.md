@@ -63,7 +63,6 @@ ros2 launch launch/gaitame_launch.py
 
 ## 謝辞
 [cxd5602pwbimu_localizer_arduino](https://github.com/hijimasa/cxd5602pwbimu_localizer_arduino) のMasaaki Hijikataさんに深く感謝いたします。  
-また、SpresenseボードやROS2をはじめとする関連ツール・ライブラリの開発者の皆様にも心より感謝申し上げます。
 
 ## ライセンス
 このプロジェクトは MIT ライセンスの下で提供されています。
