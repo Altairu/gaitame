@@ -14,7 +14,7 @@
 
 ## システムの動作概要
 - **マイコン側 (gaitame.ino):**  
-  [cxd5602pwbimu_localizer_arduino](https://github.com/hijimasa/cxd5602pwbimu_arduino) をベースに、Spresense と接続された CXD5602PWBIMU センサーから加速度・ジャイロデータを取得し、補正・姿勢推定を行います。データは CSV 形式で出力されます。  
+   [cxd5602pwbimu_localizer_arduino](https://github.com/hijimasa/cxd5602pwbimu_localizer_arduino)) をベースに、Spresense と接続された CXD5602PWBIMU センサーから加速度・ジャイロデータを取得し、補正・姿勢推定を行います。
 - **ROS2 ノード (serialnode.py, rviznode.py):**  
   シリアル通信を通じてマイコンから受信した計算済み姿勢データ（roll, pitch, yaw〔度〕）をクォータニオンに変換し、`imu_pose` トピックに配信します。  
   次に、`rviznode.py` がこの `imu_pose` トピックを購読し、Marker で姿勢情報（オイラー角）を RViz 上に表示します。
@@ -25,10 +25,8 @@
 1. **Spresense 環境のセットアップ:**  
    Spresense の Arduino IDE 用プラグインをインストールし、適切なボード設定を行ってください。
 2. **コードの取得と書き込み:**  
-   [cxd5602pwbimu_localizer_arduino](https://github.com/hijimasa/cxd5602pwbimu_arduino) リポジトリからコードを取得し、`gaitame/gaitame/gaitame.ino` に配置します。Arduino IDE で開き、Spresense ボードに書き込みます。
-3. **シリアル通信:**  
-   センサーから得られるデータは CSV 形式 (1行目: 生データ, 2行目: 姿勢データ) で出力されます。このデータは ROS2 ノードが受信し処理します。
-
+   [cxd5602pwbimu_localizer_arduino](https://github.com/hijimasa/cxd5602pwbimu_localizer_arduino) リポジトリからコードを取得しArduino IDE で開き、Spresense ボードに書き込みます。
+   
 ### ROS2 ノードのセットアップ
 1. **依存関係のインストール:**  
    必要な ROS2 パッケージをインストールしてください。
