@@ -2,7 +2,7 @@
 
 ## 概要
 このプロジェクトは、Spresense ボードと CXD5602PWBIMU センサーを使用して姿勢推定を行い、そのデータを ROS2 を通じて配信・可視化します
-マイコン用コードは [cxd5602pwbimu_localizer_arduino](https://github.com/hijimasa/cxd5602pwbimu_arduino) リポジトリから取得し、必要に応じてカスタマイズしています。
+マイコン用コードは [cxd5602pwbimu_localizer_arduino](https://github.com/hijimasa/cxd5602pwbimu_localizer_arduino) リポジトリから取得し、必要に応じてカスタマイズしています。
 
 ## フォルダ構成
 - `gaitame/gaitame/`
@@ -62,7 +62,7 @@ ros2 launch launch/gaitame_launch.py
 ```
 
 ## 謝辞
-[cxd5602pwbimu_localizer_arduino](https://github.com/hijimasa/cxd5602pwbimu_arduino) のMasaaki Hijikataさんに深く感謝いたします。  
+[cxd5602pwbimu_localizer_arduino](https://github.com/hijimasa/cxd5602pwbimu_localizer_arduino) のMasaaki Hijikataさんに深く感謝いたします。  
 また、SpresenseボードやROS2をはじめとする関連ツール・ライブラリの開発者の皆様にも心より感謝申し上げます。
 
 ## ライセンス
