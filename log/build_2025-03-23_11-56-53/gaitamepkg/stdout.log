@@ -1,0 +1,28 @@
+running egg_info
+writing ../../build/gaitamepkg/gaitamepkg.egg-info/PKG-INFO
+writing dependency_links to ../../build/gaitamepkg/gaitamepkg.egg-info/dependency_links.txt
+writing entry points to ../../build/gaitamepkg/gaitamepkg.egg-info/entry_points.txt
+writing requirements to ../../build/gaitamepkg/gaitamepkg.egg-info/requires.txt
+writing top-level names to ../../build/gaitamepkg/gaitamepkg.egg-info/top_level.txt
+reading manifest file '../../build/gaitamepkg/gaitamepkg.egg-info/SOURCES.txt'
+writing manifest file '../../build/gaitamepkg/gaitamepkg.egg-info/SOURCES.txt'
+running build
+running build_py
+copying gaitamepkg/rviznode.py -> /home/altair/gaitame/build/gaitamepkg/build/lib/gaitamepkg
+copying gaitamepkg/__init__.py -> /home/altair/gaitame/build/gaitamepkg/build/lib/gaitamepkg
+copying gaitamepkg/serialnode.py -> /home/altair/gaitame/build/gaitamepkg/build/lib/gaitamepkg
+copying gaitamepkg/madgwick_node.py -> /home/altair/gaitame/build/gaitamepkg/build/lib/gaitamepkg
+running install
+running install_lib
+copying /home/altair/gaitame/build/gaitamepkg/build/lib/gaitamepkg/madgwick_node.py -> /home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages/gaitamepkg
+byte-compiling /home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages/gaitamepkg/madgwick_node.py to madgwick_node.cpython-310.pyc
+running install_data
+copying resource/gaitamepkg -> /home/altair/gaitame/install/gaitamepkg/share/ament_index/resource_index/packages
+copying package.xml -> /home/altair/gaitame/install/gaitamepkg/share/gaitamepkg
+running install_egg_info
+removing '/home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages/gaitamepkg-0.0.0-py3.10.egg-info' (and everything under it)
+Copying ../../build/gaitamepkg/gaitamepkg.egg-info to /home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages/gaitamepkg-0.0.0-py3.10.egg-info
+running install_scripts
+Installing rviznode script to /home/altair/gaitame/install/gaitamepkg/lib/gaitamepkg
+Installing serialnode script to /home/altair/gaitame/install/gaitamepkg/lib/gaitamepkg
+writing list of installed files to '/home/altair/gaitame/build/gaitamepkg/install.log'

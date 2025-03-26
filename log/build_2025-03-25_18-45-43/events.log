@@ -1,0 +1,138 @@
+[0.000000] (-) TimerEvent: {}
+[0.000162] (gaitamepkg) JobQueued: {'identifier': 'gaitamepkg', 'dependencies': OrderedDict()}
+[0.000256] (gaitamepkg) JobStarted: {'identifier': 'gaitamepkg'}
+[0.099480] (-) TimerEvent: {}
+[0.201092] (-) TimerEvent: {}
+[0.302723] (-) TimerEvent: {}
+[0.404459] (-) TimerEvent: {}
+[0.506469] (-) TimerEvent: {}
+[0.607723] (-) TimerEvent: {}
+[0.708246] (-) TimerEvent: {}
+[0.809809] (-) TimerEvent: {}
+[0.911815] (-) TimerEvent: {}
+[1.014617] (-) TimerEvent: {}
+[1.120694] (-) TimerEvent: {}
+[1.222325] (-) TimerEvent: {}
+[1.324270] (-) TimerEvent: {}
+[1.425986] (-) TimerEvent: {}
+[1.527479] (-) TimerEvent: {}
+[1.629093] (-) TimerEvent: {}
+[1.730428] (-) TimerEvent: {}
+[1.831698] (-) TimerEvent: {}
+[1.933110] (-) TimerEvent: {}
+[2.034109] (-) TimerEvent: {}
+[2.135549] (-) TimerEvent: {}
+[2.237420] (-) TimerEvent: {}
+[2.338850] (-) TimerEvent: {}
+[2.440089] (-) TimerEvent: {}
+[2.541299] (-) TimerEvent: {}
+[2.641777] (-) TimerEvent: {}
+[2.742803] (-) TimerEvent: {}
+[2.843440] (-) TimerEvent: {}
+[2.944498] (-) TimerEvent: {}
+[3.045126] (-) TimerEvent: {}
+[3.146611] (-) TimerEvent: {}
+[3.247652] (-) TimerEvent: {}
+[3.348150] (-) TimerEvent: {}
+[3.449266] (-) TimerEvent: {}
+[3.550439] (-) TimerEvent: {}
+[3.651651] (-) TimerEvent: {}
+[3.753136] (-) TimerEvent: {}
+[3.854537] (-) TimerEvent: {}
+[3.955823] (-) TimerEvent: {}
+[4.057090] (-) TimerEvent: {}
+[4.158221] (-) TimerEvent: {}
+[4.259391] (-) TimerEvent: {}
+[4.359997] (-) TimerEvent: {}
+[4.461178] (-) TimerEvent: {}
+[4.562332] (-) TimerEvent: {}
+[4.663762] (-) TimerEvent: {}
+[4.764895] (-) TimerEvent: {}
+[4.865969] (-) TimerEvent: {}
+[4.967343] (-) TimerEvent: {}
+[5.069011] (-) TimerEvent: {}
+[5.170724] (-) TimerEvent: {}
+[5.272345] (-) TimerEvent: {}
+[5.373456] (-) TimerEvent: {}
+[5.442139] (gaitamepkg) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'develop', '--editable', '--build-directory', '/home/altair/gaitame/build/gaitamepkg/build', '--no-deps', 'symlink_data'], 'cwd': '/home/altair/gaitame/build/gaitamepkg', 'env': {'LESSOPEN': '| /usr/bin/lesspipe %s', 'LANGUAGE': 'ja:en', 'USER': 'altair', 'LC_TIME': 'ja_JP.UTF-8', 'XDG_SESSION_TYPE': 'wayland', 'STM32CubeMX_PATH': '/home/altair/STM32CubeMX', 'SHLVL': '2', 'LD_LIBRARY_PATH': '/usr/local/lib:/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib', 'HOME': '/home/altair', 'OLDPWD': '/home/altair', 'DESKTOP_SESSION': 'ubuntu', 'ROS_PYTHON_VERSION': '3', 'GNOME_SHELL_SESSION_MODE': 'ubuntu', 'GTK_MODULES': 'gail:atk-bridge', 'LC_MONETARY': 'ja_JP.UTF-8', 'SYSTEMD_EXEC_PID': '1323', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'COLORTERM': 'truecolor', 'IM_CONFIG_PHASE': '1', 'WAYLAND_DISPLAY': 'wayland-0', 'ROS_DISTRO': 'humble', 'LOGNAME': 'altair', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'XDG_SESSION_CLASS': 'user', 'USERNAME': 'altair', 'TERM': 'xterm-256color', 'GNOME_DESKTOP_SESSION_ID': 'this-is-deprecated', 'ROS_LOCALHOST_ONLY': '0', 'PATH': '/home/altair/spresenseenv/usr/bin:/opt/ros/humble/bin:/home/altair/.local/bin:/home/altair/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/altair/bin:/home/altair/bin', 'SESSION_MANAGER': 'local/altair-ThinkPad-L380:@/tmp/.ICE-unix/1295,unix/altair-ThinkPad-L380:/tmp/.ICE-unix/1295', 'PAPERSIZE': 'a4', 'XDG_MENU_PREFIX': 'gnome-', 'LC_ADDRESS': 'ja_JP.UTF-8', 'GNOME_TERMINAL_SCREEN': '/org/gnome/Terminal/screen/1db1dd39_f79d_4239_aeb2_9f5d6bde6e0f', 'GNOME_SETUP_DISPLAY': ':1', 'XDG_RUNTIME_DIR': '/run/user/1000', 'DISPLAY': ':0', 'LANG': 'ja_JP.UTF-8', 'XDG_CURRENT_DESKTOP': 'ubuntu:GNOME', 'LC_TELEPHONE': 'ja_JP.UTF-8', 'XMODIFIERS': '@im=ibus', 'XDG_SESSION_DESKTOP': 'ubuntu', 'XAUTHORITY': '/run/user/1000/.mutter-Xwaylandauth.RVQ032', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:', 'GNOME_TERMINAL_SERVICE': ':1.113', 'SSH_AGENT_LAUNCHER': 'gnome-keyring', 'SSH_AUTH_SOCK': '/run/user/1000/keyring/ssh', 'ROS_DOMAIN_ID': '1', 'AMENT_PREFIX_PATH': '/opt/ros/humble', 'SHELL': '/bin/bash', 'LC_NAME': 'ja_JP.UTF-8', 'QT_ACCESSIBILITY': '1', 'GDMSESSION': 'ubuntu', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'LC_MEASUREMENT': 'ja_JP.UTF-8', 'LC_IDENTIFICATION': 'ja_JP.UTF-8', 'QT_IM_MODULE': 'ibus', 'PWD': '/home/altair/gaitame/build/gaitamepkg', 'LC_ALL': 'en_US.UTF-8', 'XDG_CONFIG_DIRS': '/etc/xdg/xdg-ubuntu:/etc/xdg', 'XDG_DATA_DIRS': '/usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop', 'PYTHONPATH': '/home/altair/gaitame/build/gaitamepkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages', 'LC_NUMERIC': 'ja_JP.UTF-8', 'LC_PAPER': 'ja_JP.UTF-8', 'COLCON': '1', 'VTE_VERSION': '6800'}, 'shell': False}
+[5.473565] (-) TimerEvent: {}
+[5.574470] (-) TimerEvent: {}
+[5.675536] (-) TimerEvent: {}
+[5.776177] (-) TimerEvent: {}
+[5.877629] (-) TimerEvent: {}
+[5.978822] (-) TimerEvent: {}
+[6.080170] (-) TimerEvent: {}
+[6.181654] (-) TimerEvent: {}
+[6.283152] (-) TimerEvent: {}
+[6.384605] (-) TimerEvent: {}
+[6.428722] (gaitamepkg) StderrLine: {'line': b"/home/altair/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:261: UserWarning: Unknown distribution option: 'tests_require'\n"}
+[6.429840] (gaitamepkg) StderrLine: {'line': b'  warnings.warn(msg)\n'}
+[6.484942] (-) TimerEvent: {}
+[6.586283] (-) TimerEvent: {}
+[6.687099] (-) TimerEvent: {}
+[6.788235] (-) TimerEvent: {}
+[6.889842] (-) TimerEvent: {}
+[6.991335] (-) TimerEvent: {}
+[7.092654] (-) TimerEvent: {}
+[7.194025] (-) TimerEvent: {}
+[7.295516] (-) TimerEvent: {}
+[7.397018] (-) TimerEvent: {}
+[7.498366] (-) TimerEvent: {}
+[7.599692] (-) TimerEvent: {}
+[7.701331] (-) TimerEvent: {}
+[7.803200] (-) TimerEvent: {}
+[7.904758] (-) TimerEvent: {}
+[8.006394] (-) TimerEvent: {}
+[8.052060] (gaitamepkg) StdoutLine: {'line': b'running develop\n'}
+[8.106739] (-) TimerEvent: {}
+[8.208316] (-) TimerEvent: {}
+[8.309537] (-) TimerEvent: {}
+[8.411090] (-) TimerEvent: {}
+[8.512450] (-) TimerEvent: {}
+[8.613796] (-) TimerEvent: {}
+[8.715490] (-) TimerEvent: {}
+[8.816968] (-) TimerEvent: {}
+[8.918318] (-) TimerEvent: {}
+[9.019820] (-) TimerEvent: {}
+[9.121703] (-) TimerEvent: {}
+[9.223188] (-) TimerEvent: {}
+[9.324792] (-) TimerEvent: {}
+[9.426035] (-) TimerEvent: {}
+[9.527230] (-) TimerEvent: {}
+[9.628819] (-) TimerEvent: {}
+[9.729601] (-) TimerEvent: {}
+[9.831157] (-) TimerEvent: {}
+[9.932768] (-) TimerEvent: {}
+[10.034082] (-) TimerEvent: {}
+[10.135342] (-) TimerEvent: {}
+[10.237007] (-) TimerEvent: {}
+[10.337958] (-) TimerEvent: {}
+[10.439596] (-) TimerEvent: {}
+[10.541331] (-) TimerEvent: {}
+[10.619157] (gaitamepkg) StdoutLine: {'line': b'running egg_info\n'}
+[10.641624] (-) TimerEvent: {}
+[10.743116] (-) TimerEvent: {}
+[10.798687] (gaitamepkg) StdoutLine: {'line': b'writing gaitamepkg.egg-info/PKG-INFO\n'}
+[10.800210] (gaitamepkg) StdoutLine: {'line': b'writing dependency_links to gaitamepkg.egg-info/dependency_links.txt\n'}
+[10.802221] (gaitamepkg) StdoutLine: {'line': b'writing entry points to gaitamepkg.egg-info/entry_points.txt\n'}
+[10.805105] (gaitamepkg) StdoutLine: {'line': b'writing requirements to gaitamepkg.egg-info/requires.txt\n'}
+[10.807763] (gaitamepkg) StdoutLine: {'line': b'writing top-level names to gaitamepkg.egg-info/top_level.txt\n'}
+[10.843402] (-) TimerEvent: {}
+[10.944852] (-) TimerEvent: {}
+[11.046263] (-) TimerEvent: {}
+[11.147103] (-) TimerEvent: {}
+[11.193200] (gaitamepkg) StdoutLine: {'line': b"reading manifest file 'gaitamepkg.egg-info/SOURCES.txt'\n"}
+[11.195093] (gaitamepkg) StdoutLine: {'line': b"writing manifest file 'gaitamepkg.egg-info/SOURCES.txt'\n"}
+[11.247119] (-) TimerEvent: {}
+[11.329587] (gaitamepkg) StdoutLine: {'line': b'running build_ext\n'}
+[11.329888] (gaitamepkg) StdoutLine: {'line': b'Creating /home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages/gaitamepkg.egg-link (link to .)\n'}
+[11.330941] (gaitamepkg) StdoutLine: {'line': b'Installing rviznode script to /home/altair/gaitame/install/gaitamepkg/lib/gaitamepkg\n'}
+[11.331140] (gaitamepkg) StdoutLine: {'line': b'Installing serialnode script to /home/altair/gaitame/install/gaitamepkg/lib/gaitamepkg\n'}
+[11.331376] (gaitamepkg) StdoutLine: {'line': b'\n'}
+[11.331475] (gaitamepkg) StdoutLine: {'line': b'Installed /home/altair/gaitame/build/gaitamepkg\n'}
+[11.331613] (gaitamepkg) StdoutLine: {'line': b'running symlink_data\n'}
+[11.347410] (-) TimerEvent: {}
+[11.448494] (-) TimerEvent: {}
+[11.505636] (gaitamepkg) CommandEnded: {'returncode': 0}
+[11.546245] (gaitamepkg) JobEnded: {'identifier': 'gaitamepkg', 'rc': 0}
+[11.546997] (-) EventReactorShutdown: {}

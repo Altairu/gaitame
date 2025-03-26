@@ -21,7 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'serialnode = gaitamepkg.serialnode:main',
-            'rviznode = gaitamepkg.rviznode:main'
+            'rviznode = gaitamepkg.rviznode:main',
         ],
     },
 )

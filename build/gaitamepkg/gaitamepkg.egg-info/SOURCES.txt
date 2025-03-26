@@ -1,6 +1,13 @@
 package.xml
 setup.cfg
 setup.py
+../../build/gaitamepkg/gaitamepkg.egg-info/PKG-INFO
+../../build/gaitamepkg/gaitamepkg.egg-info/SOURCES.txt
+../../build/gaitamepkg/gaitamepkg.egg-info/dependency_links.txt
+../../build/gaitamepkg/gaitamepkg.egg-info/entry_points.txt
+../../build/gaitamepkg/gaitamepkg.egg-info/requires.txt
+../../build/gaitamepkg/gaitamepkg.egg-info/top_level.txt
+../../build/gaitamepkg/gaitamepkg.egg-info/zip-safe
 gaitamepkg/__init__.py
 gaitamepkg/rviznode.py
 gaitamepkg/serialnode.py

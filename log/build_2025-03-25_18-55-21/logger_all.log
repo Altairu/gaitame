@@ -1,0 +1,172 @@
+[0.524s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build', '--symlink-install']
+[0.525s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=False, symlink_install=True, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=8, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=None, packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], cmake_args=None, cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, mixin_files=None, mixin=None, verb_parser=<colcon_mixin.mixin.mixin_argument.MixinArgumentDecorator object at 0x7f4aafbc6fe0>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0x7f4aafbc6a70>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0x7f4aafbc6a70>>, mixin_verb=('build',))
+[0.625s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.625s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.625s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.625s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.625s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[0.625s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.625s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/altair/gaitame'
+[0.626s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[0.626s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[0.626s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[0.626s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[0.626s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[0.626s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[0.626s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[0.626s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[0.626s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[0.712s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['cmake', 'python']
+[0.713s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'cmake'
+[0.713s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python'
+[0.714s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['python_setup_py']
+[0.714s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python_setup_py'
+[0.715s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extensions ['ignore', 'ignore_ament_install']
+[0.716s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extension 'ignore'
+[0.717s] Level 1:colcon.colcon_core.package_identification:_identify(build) ignored
+[0.718s] Level 1:colcon.colcon_core.package_identification:_identify(gaitame) by extensions ['ignore', 'ignore_ament_install']
+[0.719s] Level 1:colcon.colcon_core.package_identification:_identify(gaitame) by extension 'ignore'
+[0.719s] Level 1:colcon.colcon_core.package_identification:_identify(gaitame) by extension 'ignore_ament_install'
+[0.720s] Level 1:colcon.colcon_core.package_identification:_identify(gaitame) by extensions ['colcon_pkg']
+[0.720s] Level 1:colcon.colcon_core.package_identification:_identify(gaitame) by extension 'colcon_pkg'
+[0.720s] Level 1:colcon.colcon_core.package_identification:_identify(gaitame) by extensions ['colcon_meta']
+[0.720s] Level 1:colcon.colcon_core.package_identification:_identify(gaitame) by extension 'colcon_meta'
+[0.721s] Level 1:colcon.colcon_core.package_identification:_identify(gaitame) by extensions ['ros']
+[0.721s] Level 1:colcon.colcon_core.package_identification:_identify(gaitame) by extension 'ros'
+[0.722s] Level 1:colcon.colcon_core.package_identification:_identify(gaitame) by extensions ['cmake', 'python']
+[0.722s] Level 1:colcon.colcon_core.package_identification:_identify(gaitame) by extension 'cmake'
+[0.723s] Level 1:colcon.colcon_core.package_identification:_identify(gaitame) by extension 'python'
+[0.723s] Level 1:colcon.colcon_core.package_identification:_identify(gaitame) by extensions ['python_setup_py']
+[0.723s] Level 1:colcon.colcon_core.package_identification:_identify(gaitame) by extension 'python_setup_py'
+[0.724s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extensions ['ignore', 'ignore_ament_install']
+[0.725s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extension 'ignore'
+[0.726s] Level 1:colcon.colcon_core.package_identification:_identify(install) ignored
+[0.726s] Level 1:colcon.colcon_core.package_identification:_identify(launch) by extensions ['ignore', 'ignore_ament_install']
+[0.727s] Level 1:colcon.colcon_core.package_identification:_identify(launch) by extension 'ignore'
+[0.728s] Level 1:colcon.colcon_core.package_identification:_identify(launch) by extension 'ignore_ament_install'
+[0.728s] Level 1:colcon.colcon_core.package_identification:_identify(launch) by extensions ['colcon_pkg']
+[0.729s] Level 1:colcon.colcon_core.package_identification:_identify(launch) by extension 'colcon_pkg'
+[0.729s] Level 1:colcon.colcon_core.package_identification:_identify(launch) by extensions ['colcon_meta']
+[0.729s] Level 1:colcon.colcon_core.package_identification:_identify(launch) by extension 'colcon_meta'
+[0.730s] Level 1:colcon.colcon_core.package_identification:_identify(launch) by extensions ['ros']
+[0.730s] Level 1:colcon.colcon_core.package_identification:_identify(launch) by extension 'ros'
+[0.731s] Level 1:colcon.colcon_core.package_identification:_identify(launch) by extensions ['cmake', 'python']
+[0.731s] Level 1:colcon.colcon_core.package_identification:_identify(launch) by extension 'cmake'
+[0.732s] Level 1:colcon.colcon_core.package_identification:_identify(launch) by extension 'python'
+[0.732s] Level 1:colcon.colcon_core.package_identification:_identify(launch) by extensions ['python_setup_py']
+[0.732s] Level 1:colcon.colcon_core.package_identification:_identify(launch) by extension 'python_setup_py'
+[0.733s] Level 1:colcon.colcon_core.package_identification:_identify(launch/__pycache__) by extensions ['ignore', 'ignore_ament_install']
+[0.734s] Level 1:colcon.colcon_core.package_identification:_identify(launch/__pycache__) by extension 'ignore'
+[0.735s] Level 1:colcon.colcon_core.package_identification:_identify(launch/__pycache__) by extension 'ignore_ament_install'
+[0.735s] Level 1:colcon.colcon_core.package_identification:_identify(launch/__pycache__) by extensions ['colcon_pkg']
+[0.736s] Level 1:colcon.colcon_core.package_identification:_identify(launch/__pycache__) by extension 'colcon_pkg'
+[0.736s] Level 1:colcon.colcon_core.package_identification:_identify(launch/__pycache__) by extensions ['colcon_meta']
+[0.736s] Level 1:colcon.colcon_core.package_identification:_identify(launch/__pycache__) by extension 'colcon_meta'
+[0.737s] Level 1:colcon.colcon_core.package_identification:_identify(launch/__pycache__) by extensions ['ros']
+[0.737s] Level 1:colcon.colcon_core.package_identification:_identify(launch/__pycache__) by extension 'ros'
+[0.738s] Level 1:colcon.colcon_core.package_identification:_identify(launch/__pycache__) by extensions ['cmake', 'python']
+[0.738s] Level 1:colcon.colcon_core.package_identification:_identify(launch/__pycache__) by extension 'cmake'
+[0.739s] Level 1:colcon.colcon_core.package_identification:_identify(launch/__pycache__) by extension 'python'
+[0.739s] Level 1:colcon.colcon_core.package_identification:_identify(launch/__pycache__) by extensions ['python_setup_py']
+[0.739s] Level 1:colcon.colcon_core.package_identification:_identify(launch/__pycache__) by extension 'python_setup_py'
+[0.741s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extensions ['ignore', 'ignore_ament_install']
+[0.742s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extension 'ignore'
+[0.742s] Level 1:colcon.colcon_core.package_identification:_identify(log) ignored
+[0.743s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ignore', 'ignore_ament_install']
+[0.744s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore'
+[0.745s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore_ament_install'
+[0.745s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_pkg']
+[0.746s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_pkg'
+[0.746s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_meta']
+[0.746s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_meta'
+[0.747s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ros']
+[0.747s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ros'
+[0.748s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['cmake', 'python']
+[0.748s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'cmake'
+[0.749s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python'
+[0.749s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['python_setup_py']
+[0.749s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python_setup_py'
+[0.750s] Level 1:colcon.colcon_core.package_identification:_identify(src/gaitamepkg) by extensions ['ignore', 'ignore_ament_install']
+[0.751s] Level 1:colcon.colcon_core.package_identification:_identify(src/gaitamepkg) by extension 'ignore'
+[0.752s] Level 1:colcon.colcon_core.package_identification:_identify(src/gaitamepkg) by extension 'ignore_ament_install'
+[0.753s] Level 1:colcon.colcon_core.package_identification:_identify(src/gaitamepkg) by extensions ['colcon_pkg']
+[0.753s] Level 1:colcon.colcon_core.package_identification:_identify(src/gaitamepkg) by extension 'colcon_pkg'
+[0.753s] Level 1:colcon.colcon_core.package_identification:_identify(src/gaitamepkg) by extensions ['colcon_meta']
+[0.754s] Level 1:colcon.colcon_core.package_identification:_identify(src/gaitamepkg) by extension 'colcon_meta'
+[0.754s] Level 1:colcon.colcon_core.package_identification:_identify(src/gaitamepkg) by extensions ['ros']
+[0.755s] Level 1:colcon.colcon_core.package_identification:_identify(src/gaitamepkg) by extension 'ros'
+[0.782s] DEBUG:colcon.colcon_core.package_identification:Package 'src/gaitamepkg' with type 'ros.ament_python' and name 'gaitamepkg'
+[0.783s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[0.784s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[0.784s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[0.785s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[0.785s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[0.830s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) check parameters
+[0.831s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) discover
+[0.860s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 334 installed packages in /opt/ros/humble
+[0.868s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) using defaults
+[1.126s] Level 5:colcon.colcon_core.verb:set package 'gaitamepkg' build argument 'cmake_args' from command line to 'None'
+[1.126s] Level 5:colcon.colcon_core.verb:set package 'gaitamepkg' build argument 'cmake_target' from command line to 'None'
+[1.127s] Level 5:colcon.colcon_core.verb:set package 'gaitamepkg' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[1.127s] Level 5:colcon.colcon_core.verb:set package 'gaitamepkg' build argument 'cmake_clean_cache' from command line to 'False'
+[1.127s] Level 5:colcon.colcon_core.verb:set package 'gaitamepkg' build argument 'cmake_clean_first' from command line to 'False'
+[1.127s] Level 5:colcon.colcon_core.verb:set package 'gaitamepkg' build argument 'cmake_force_configure' from command line to 'False'
+[1.127s] Level 5:colcon.colcon_core.verb:set package 'gaitamepkg' build argument 'ament_cmake_args' from command line to 'None'
+[1.127s] Level 5:colcon.colcon_core.verb:set package 'gaitamepkg' build argument 'catkin_cmake_args' from command line to 'None'
+[1.127s] Level 5:colcon.colcon_core.verb:set package 'gaitamepkg' build argument 'catkin_skip_building_tests' from command line to 'False'
+[1.127s] DEBUG:colcon.colcon_core.verb:Building package 'gaitamepkg' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/altair/gaitame/build/gaitamepkg', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/altair/gaitame/install/gaitamepkg', 'merge_install': False, 'path': '/home/altair/gaitame/src/gaitamepkg', 'symlink_install': True, 'test_result_base': None}
+[1.127s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[1.129s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[1.129s] INFO:colcon.colcon_ros.task.ament_python.build:Building ROS package in '/home/altair/gaitame/src/gaitamepkg' with build type 'ament_python'
+[1.130s] Level 1:colcon.colcon_core.shell:create_environment_hook('gaitamepkg', 'ament_prefix_path')
+[1.135s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[1.138s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/altair/gaitame/install/gaitamepkg/share/gaitamepkg/hook/ament_prefix_path.ps1'
+[1.145s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/altair/gaitame/install/gaitamepkg/share/gaitamepkg/hook/ament_prefix_path.dsv'
+[1.149s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/altair/gaitame/install/gaitamepkg/share/gaitamepkg/hook/ament_prefix_path.sh'
+[1.159s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[1.159s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[2.850s] INFO:colcon.colcon_core.task.python.build:Building Python package in '/home/altair/gaitame/src/gaitamepkg'
+[2.852s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[2.853s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[6.913s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/altair/gaitame/build/gaitamepkg': PYTHONPATH=/home/altair/gaitame/build/gaitamepkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/altair/gaitame/build/gaitamepkg/build --no-deps symlink_data
+[11.646s] Level 1:colcon.colcon_core.shell:create_environment_hook('gaitamepkg', 'pythonpath_develop')
+[11.646s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/altair/gaitame/build/gaitamepkg/share/gaitamepkg/hook/pythonpath_develop.ps1'
+[11.647s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/altair/gaitame/build/gaitamepkg' returned '0': PYTHONPATH=/home/altair/gaitame/build/gaitamepkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/altair/gaitame/build/gaitamepkg/build --no-deps symlink_data
+[11.647s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/altair/gaitame/build/gaitamepkg/share/gaitamepkg/hook/pythonpath_develop.dsv'
+[11.648s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/altair/gaitame/build/gaitamepkg/share/gaitamepkg/hook/pythonpath_develop.sh'
+[11.651s] Level 1:colcon.colcon_core.environment:checking '/home/altair/gaitame/install/gaitamepkg' for CMake module files
+[11.652s] Level 1:colcon.colcon_core.environment:checking '/home/altair/gaitame/install/gaitamepkg' for CMake config files
+[11.652s] Level 1:colcon.colcon_core.environment:checking '/home/altair/gaitame/install/gaitamepkg/lib'
+[11.653s] Level 1:colcon.colcon_core.environment:checking '/home/altair/gaitame/install/gaitamepkg/bin'
+[11.653s] Level 1:colcon.colcon_core.environment:checking '/home/altair/gaitame/install/gaitamepkg/lib/pkgconfig/gaitamepkg.pc'
+[11.653s] Level 1:colcon.colcon_core.environment:checking '/home/altair/gaitame/install/gaitamepkg/lib/python3.10/site-packages'
+[11.653s] Level 1:colcon.colcon_core.shell:create_environment_hook('gaitamepkg', 'pythonpath')
+[11.653s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/altair/gaitame/install/gaitamepkg/share/gaitamepkg/hook/pythonpath.ps1'
+[11.654s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/altair/gaitame/install/gaitamepkg/share/gaitamepkg/hook/pythonpath.dsv'
+[11.654s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/altair/gaitame/install/gaitamepkg/share/gaitamepkg/hook/pythonpath.sh'
+[11.655s] Level 1:colcon.colcon_core.environment:checking '/home/altair/gaitame/install/gaitamepkg/bin'
+[11.655s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(gaitamepkg)
+[11.656s] INFO:colcon.colcon_core.shell:Creating package script '/home/altair/gaitame/install/gaitamepkg/share/gaitamepkg/package.ps1'
+[11.657s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/altair/gaitame/install/gaitamepkg/share/gaitamepkg/package.dsv'
+[11.658s] INFO:colcon.colcon_core.shell:Creating package script '/home/altair/gaitame/install/gaitamepkg/share/gaitamepkg/package.sh'
+[11.659s] INFO:colcon.colcon_core.shell:Creating package script '/home/altair/gaitame/install/gaitamepkg/share/gaitamepkg/package.bash'
+[11.666s] INFO:colcon.colcon_core.shell:Creating package script '/home/altair/gaitame/install/gaitamepkg/share/gaitamepkg/package.zsh'
+[11.675s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/altair/gaitame/install/gaitamepkg/share/colcon-core/packages/gaitamepkg)
+[11.679s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[11.684s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[11.685s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '0'
+[11.685s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[11.741s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[11.741s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[11.741s] INFO:colcon.colcon_notification.desktop_notification:Sending desktop notification using 'notify2'
+[11.799s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[11.803s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/altair/gaitame/install/local_setup.ps1'
+[11.813s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/altair/gaitame/install/_local_setup_util_ps1.py'
+[11.834s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/altair/gaitame/install/setup.ps1'
+[11.848s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/altair/gaitame/install/local_setup.sh'
+[11.851s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/altair/gaitame/install/_local_setup_util_sh.py'
+[11.852s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/altair/gaitame/install/setup.sh'
+[11.855s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/altair/gaitame/install/local_setup.bash'
+[11.856s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/altair/gaitame/install/setup.bash'
+[11.857s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/altair/gaitame/install/local_setup.zsh'
+[11.858s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/altair/gaitame/install/setup.zsh'

@@ -1,66 +1,59 @@
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, TwistStamped
 from visualization_msgs.msg import Marker
-import math
-
-def quaternion_to_euler(x, y, z, w):
-    # オイラー角 (ラジアン) の計算
-    sinr_cosp = 2 * (w * x + y * z)
-    cosr_cosp = 1 - 2 * (x * x + y * y)
-    roll = math.atan2(sinr_cosp, cosr_cosp)
-    
-    sinp = 2 * (w * y - z * x)
-    if abs(sinp) >= 1:
-        pitch = math.copysign(math.pi / 2, sinp)
-    else:
-        pitch = math.asin(sinp)
-    
-    siny_cosp = 2 * (w * z + x * y)
-    cosy_cosp = 1 - 2 * (y * y + z * z)
-    yaw = math.atan2(siny_cosp, cosy_cosp)
-    
-    # 度に変換
-    roll_deg = math.degrees(roll)
-    pitch_deg = math.degrees(pitch)
-    yaw_deg = math.degrees(yaw)
-    # yaw角を 0～360 度に正規化
-    if yaw_deg < 0:
-        yaw_deg += 360
-    return roll_deg, pitch_deg, yaw_deg
 
 class RvizNode(Node):
     def __init__(self):
         super().__init__('rviz_node')
-        self.subscription = self.create_subscription(PoseStamped, 'imu_pose', self.listener_callback, 10)
-        self.publisher_ = self.create_publisher(Marker, 'imu_marker', 10)
+        self.pose_subscription = self.create_subscription(PoseStamped, '/imu_pose', self.pose_callback, 10)
+        self.twist_subscription = self.create_subscription(TwistStamped, '/imu_twist', self.twist_callback, 10)
+        self.pose_marker_publisher = self.create_publisher(Marker, 'imu_pose_marker', 10)
+        self.twist_marker_publisher = self.create_publisher(Marker, 'imu_twist_marker', 10)
 
-    def listener_callback(self, msg: PoseStamped):
-        self.get_logger().info(f"Received PoseStamped: {msg}")
-        # 受信したPoseStampedは、マイコン側で計算された姿勢データをもとに生成されています。
-        x = msg.pose.orientation.x
-        y = msg.pose.orientation.y
-        z = msg.pose.orientation.z
-        w = msg.pose.orientation.w
-        roll, pitch, yaw = quaternion_to_euler(x, y, z, w)
-        
+    def pose_callback(self, msg: PoseStamped):
+        # デバッグ用ログ: Poseデータを確認
+        self.get_logger().info(f"Pose received: x={msg.pose.position.x:.2f} mm, y={msg.pose.position.y:.2f} mm, z={msg.pose.position.z:.2f} mm")
+
+        # Poseデータを可視化
         marker = Marker()
         marker.header = msg.header
-        marker.ns = "imu"
+        marker.ns = "pose"
         marker.id = 0
-        marker.type = Marker.TEXT_VIEW_FACING
+        marker.type = Marker.ARROW
         marker.action = Marker.ADD
-        marker.pose.position.x = 0.0
-        marker.pose.position.y = 0.0
-        marker.pose.position.z = 0.5
-        marker.text = f"Roll: {roll:.1f}\nPitch: {pitch:.1f}\nYaw: {yaw:.1f}"
-        marker.scale.z = 0.4
+        marker.pose = msg.pose
+        marker.scale.x = 0.1  # スケールを小さく調整
+        marker.scale.y = 0.02
+        marker.scale.z = 0.02
+        marker.color.a = 1.0
+        marker.color.r = 0.0
+        marker.color.g = 1.0
+        marker.color.b = 0.0
+        self.pose_marker_publisher.publish(marker)
+
+    def twist_callback(self, msg: TwistStamped):
+        # デバッグ用ログ: Twistデータを確認
+        self.get_logger().info(f"Twist received: linear_x={msg.twist.linear.x:.2f} mm/s, linear_y={msg.twist.linear.y:.2f} mm/s, linear_z={msg.twist.linear.z:.2f} mm/s")
+
+        # Twistデータを可視化
+        marker = Marker()
+        marker.header = msg.header
+        marker.ns = "twist"
+        marker.id = 1
+        marker.type = Marker.ARROW
+        marker.action = Marker.ADD
+        marker.pose.position.x = msg.twist.linear.x / 1000.0  # [m]
+        marker.pose.position.y = msg.twist.linear.y / 1000.0  # [m]
+        marker.pose.position.z = msg.twist.linear.z / 1000.0  # [m]
+        marker.scale.x = 0.1  # スケールを小さく調整
+        marker.scale.y = 0.02
+        marker.scale.z = 0.02
         marker.color.a = 1.0
         marker.color.r = 1.0
-        marker.color.g = 1.0
-        marker.color.b = 1.0
-        self.publisher_.publish(marker)
-        self.get_logger().info(f"Published Marker: {marker}")
+        marker.color.g = 0.0
+        marker.color.b = 0.0
+        self.twist_marker_publisher.publish(marker)
 
 def main(args=None):
     rclpy.init(args=args)
