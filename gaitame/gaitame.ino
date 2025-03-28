@@ -1,112 +1,114 @@
-// Spresense Multi-IMU を用いた自己位置推定例（Arduino IDE用）
-//
-// センサ初期化、運動状態の推定（クォータニオンによる姿勢推定、単純オイラー積分による速度・位置計算）を行い，
-// Serial出力により推定結果（姿勢：roll, pitch, yaw，速度，位置）を表示する。
-// ※ 実際の環境に応じてパラメータやフィルタ処理は調整してください。
-
 #include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <poll.h>
-#include <errno.h>
-#include <math.h>
 #include <sys/ioctl.h>
-#include <stdint.h>
-#include <Arduino.h> // Arduino環境ではこのヘッダで millis() が提供される
-
-// PWBIMU用ヘッダ
+#include <fcntl.h>
 #include <nuttx/sensors/cxd5602pwbimu.h>
+#include <arch/board/cxd56_cxd5602pwbimu.h>
+#include <stdbool.h>
 
-extern "C" int board_cxd5602pwbimu_initialize(int);
+#define CXD5602PWBIMU_DEVPATH "/dev/imu0"
+#define MAX_NFIFO (1)
 
-#define IMU_RATE 240    // サンプリングレート [Hz]
-#define IMU_ADRANGE 4   // 加速度レンジ [G]
-#define IMU_GDRANGE 500 // ジャイロレンジ [dps]
-#define IMU_FIFO 1      // FIFO設定
+#define GRAVITY_AMOUNT 9.80665f
+#define EARTH_ROTATION_SPEED_AMOUNT 7.2921159e-5
 
-// 測定周波数等のパラメータ
-#define MESUREMENT_FREQUENCY IMU_RATE
+#define MESUREMENT_FREQUENCY 1920
+#define GYRO_NOISE_DENSITY (1.0e-3 * M_PI / 180.0f)
+#define ACCEL_NOISE_DENSITY (14.0e-6 * GRAVITY_AMOUNT)
+#define GYRO_NOISE_AMOUNT (GYRO_NOISE_DENSITY * sqrt(MESUREMENT_FREQUENCY))
+#define ACCEL_NOISE_AMOUNT (ACCEL_NOISE_DENSITY * sqrt(MESUREMENT_FREQUENCY))
+#define ACCEL_BIAS_DRIFT (4.43e-6 * GRAVITY_AMOUNT * 3.0f)
+#define GYRO_BIAS_DRIFT (0.39f * M_PI / 180.0f)
+// 観測ノイズの分散
+#define GYRO_OBSERVATION_NOISE_VARIANCE (GYRO_NOISE_AMOUNT * GYRO_NOISE_AMOUNT)
+#define ACCEL_OBSERVATION_NOISE_VARIANCE (ACCEL_NOISE_AMOUNT * ACCEL_NOISE_AMOUNT)
+// プロセスノイズの分散
+#define PROCESS_NOISE_VARIANCE (1.0e-7)
+
 #define LIST_SIZE 8
 #define SIGMA_K (LIST_SIZE / 8.0f)
-#define ACC_MADGWICK_FILTER_WEIGHT 0.11f
+
+// Madgwick Filterの重み
+#define ACC_MADGWICK_FILTER_WEIGHT 0.11f //(sqrt(3.0f / 4.0f) * GYRO_NOISE_AMOUNT / ACCEL_NOISE_AMOUNT)
 #define GYRO_MADGWICK_FILTER_WEIGHT 0.00000001f
-#define GRAVITY_AMOUNT 9.80665f
-#define ACCEL_NOISE_AMOUNT (14.0e-6 * GRAVITY_AMOUNT)
-#define ACCEL_BIAS_DRIFT (4.43e-6 * GRAVITY_AMOUNT * 3.0f)
-#define EARTH_ROTATION_SPEED_AMOUNT 7.2921159e-5
-#define GYRO_NOISE_AMOUNT (1.0e-3 * M_PI / 180.0f)
 
-// センサファイルディスクリプタ
-static int fd;
+static cxd5602pwbimu_data_t g_data[MAX_NFIFO];
+int devfd;
+int ret;
 
-// 時間管理用
-static unsigned long last_time = 0;
+// グローバル変数（ゼロ速度補正用）
+float biased_velocity = 0.0;
+int zero_velocity_counter = 0;
 
-// 推定状態（グローバル変数）
-static float quaternion[4] = {1.0f, 0.0f, 0.0f, 0.0f};
-static float velocity[3] = {0.0f, 0.0f, 0.0f};
-static float position[3] = {0.0f, 0.0f, 0.0f};
+bool is_initialized = false;
+int current_list_num = 0;
+float estimated_acceleration_x;
+float estimated_acceleration_y;
+float estimated_acceleration_z;
+float estimated_rotation_speed_x;
+float estimated_rotation_speed_y;
+float estimated_rotation_speed_z;
+float mesuared_acceleration_x[LIST_SIZE];
+float mesuared_acceleration_y[LIST_SIZE];
+float mesuared_acceleration_z[LIST_SIZE];
+float mesuared_rotation_speed_x[LIST_SIZE];
+float mesuared_rotation_speed_y[LIST_SIZE];
+float mesuared_rotation_speed_z[LIST_SIZE];
+float quaternion[4] = {1.0, 0.0, 0.0, 0.0};
+float old_acceleration[3] = {0.0, 0.0, 0.0};
+float velocity[3] = {0.0, 0.0, 0.0};
+float old_velocity[3] = {0.0, 0.0, 0.0};
+float position[3] = {0.0, 0.0, 0.0};
+float current_gravity[3] = {0.0, 0.0, 0.0};
+int old_timestamp = -1;
+int calibrate_counter = 0;
 
-// センサデータフィルタリング用リングバッファ
-static float acc_buf_x[LIST_SIZE] = {0};
-static float acc_buf_y[LIST_SIZE] = {0};
-static float acc_buf_z[LIST_SIZE] = {0}; // Z軸用リングバッファ
-static int buf_index = 0;
-
-// 内部計算用一時変数
-static int init_counter = 0;
-static bool is_initialized = false;
-static int zero_velocity_counter = 0;
-static float biased_velocity = 0.0f;
-
-// 初期加速度補正用変数
-static float initial_acc[2] = {0.0f, 0.0f}; // X, Y軸の初期加速度
-
-// 初期重力加速度補正用変数
-static float gravity[3] = {0.0f, 0.0f, 0.0f}; // X, Y, Z軸の重力加速度
-
-// ----- クォータニオン微分・更新等の関数 -----
+// クォータニオン微分関数：qは長さ4、omegaは長さ3、dqdtに結果を出力
 void diff_quaternion(const float q[4], const float omega[3], float dqdt[4])
 {
   float w = q[0], x = q[1], y = q[2], z = q[3];
-  dqdt[0] = 0.5f * (-x * omega[0] - y * omega[1] - z * omega[2]);
-  dqdt[1] = 0.5f * (w * omega[0] + y * omega[2] - z * omega[1]);
-  dqdt[2] = 0.5f * (w * omega[1] - x * omega[2] + z * omega[0]);
-  dqdt[3] = 0.5f * (w * omega[2] + x * omega[1] - y * omega[0]);
+  float omega_x = omega[0], omega_y = omega[1], omega_z = omega[2];
+
+  dqdt[0] = 0.5 * (-x * omega_x - y * omega_y - z * omega_z);
+  dqdt[1] = 0.5 * (w * omega_x + y * omega_z - z * omega_y);
+  dqdt[2] = 0.5 * (w * omega_y - x * omega_z + z * omega_x);
+  dqdt[3] = 0.5 * (w * omega_z + x * omega_y - y * omega_x);
 }
 
-// Runge-Kutta 4次法によるクォータニオン更新
+// RK4法によるクォータニオン更新
 void runge_kutta_update(const float q[4], const float omega[3], float h, float q_next[4])
 {
-  float k1[4], k2[4], k3[4], k4[4], temp[4];
+  float k1[4], k2[4], k3[4], k4[4];
+  float q1[4], q2[4], q3[4];
+  int i;
+
   diff_quaternion(q, omega, k1);
-  for (int i = 0; i < 4; i++)
+  for (i = 0; i < 4; i++)
   {
-    temp[i] = q[i] + (h / 2.0f) * k1[i];
+    q1[i] = q[i] + (h / 2.0) * k1[i];
   }
-  diff_quaternion(temp, omega, k2);
-  for (int i = 0; i < 4; i++)
+  diff_quaternion(q1, omega, k2);
+  for (i = 0; i < 4; i++)
   {
-    temp[i] = q[i] + (h / 2.0f) * k2[i];
+    q2[i] = q[i] + (h / 2.0) * k2[i];
   }
-  diff_quaternion(temp, omega, k3);
-  for (int i = 0; i < 4; i++)
+  diff_quaternion(q2, omega, k3);
+  for (i = 0; i < 4; i++)
   {
-    temp[i] = q[i] + h * k3[i];
+    q3[i] = q[i] + h * k3[i];
   }
-  diff_quaternion(temp, omega, k4);
-  for (int i = 0; i < 4; i++)
+  diff_quaternion(q3, omega, k4);
+  for (i = 0; i < 4; i++)
   {
-    q_next[i] = q[i] + (h / 6.0f) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
+    q_next[i] = q[i] + (h / 6.0) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
   }
   // 正規化
-  float norm = 0.0f;
-  for (int i = 0; i < 4; i++)
+  float norm = 0.0;
+  for (i = 0; i < 4; i++)
   {
     norm += q_next[i] * q_next[i];
   }
-  norm = sqrtf(norm);
-  for (int i = 0; i < 4; i++)
+  norm = sqrt(norm);
+  for (i = 0; i < 4; i++)
   {
     q_next[i] /= norm;
   }
@@ -120,225 +122,34 @@ void cross_product(const float a[3], const float b[3], float result[3])
   result[2] = a[0] * b[1] - a[1] * b[0];
 }
 
-// RK4法による3次元ベクトル更新（例：重心方向更新用）
+// RK4法による3次元ベクトルの更新
 void update_vector_rk4(const float v[3], const float omega[3], float h, float v_next[3])
 {
-  float k1[3], k2[3], k3[3], k4[3], temp[3];
+  float k1[3], k2[3], k3[3], k4[3];
+  float temp[3];
+  int i;
+
   cross_product(omega, v, k1);
-  for (int i = 0; i < 3; i++)
-    temp[i] = v[i] + (h / 2.0f) * k1[i];
+  for (i = 0; i < 3; i++)
+    temp[i] = v[i] + (h / 2.0) * k1[i];
   cross_product(omega, temp, k2);
-  for (int i = 0; i < 3; i++)
-    temp[i] = v[i] + (h / 2.0f) * k2[i];
+  for (i = 0; i < 3; i++)
+    temp[i] = v[i] + (h / 2.0) * k2[i];
   cross_product(omega, temp, k3);
-  for (int i = 0; i < 3; i++)
+  for (i = 0; i < 3; i++)
     temp[i] = v[i] + h * k3[i];
   cross_product(omega, temp, k4);
-  for (int i = 0; i < 3; i++)
-    v_next[i] = v[i] + (h / 6.0f) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
+  for (i = 0; i < 3; i++)
+    v_next[i] = v[i] + (h / 6.0) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]);
 }
 
-// カジュアルなガウスフィルタ：最新の LIST_SIZE 個の値にカーネルを適用
-float apply_causal_gaussian_filter(const float *x, int current)
+// ゼロ速度補正関数
+bool zero_velocity_correction(float target_velocity[3], float dt)
 {
-  static float kernel[LIST_SIZE];
-  static bool kernel_initialized = false;
-  if (!kernel_initialized)
-  {
-    float sum = 0.0f;
-    for (int i = 0; i < LIST_SIZE; i++)
-    {
-      kernel[i] = (1.0f / (sqrtf(2.0f * M_PI) * SIGMA_K)) * expf(-((i * i)) / (2.0f * SIGMA_K * SIGMA_K));
-      sum += kernel[i];
-    }
-    for (int i = 0; i < LIST_SIZE; i++)
-    {
-      kernel[i] /= sum;
-    }
-    kernel_initialized = true;
-  }
-  float y = 0.0f;
-  for (int i = 0; i < LIST_SIZE; i++)
-  {
-    int idx = (current + LIST_SIZE - i) % LIST_SIZE;
-    y += kernel[i] * x[idx];
-  }
-  return y;
-}
-
-// クォータニオンを使ってベクトルに回転を適用する
-void apply_rotation(const float *q, const float *v, float result[3])
-{
-  float q_conj[4] = {q[0], -q[1], -q[2], -q[3]};
-  float vq[4] = {0.0f, v[0], v[1], v[2]};
-  float temp[4];
-  temp[0] = q[0] * vq[0] - q[1] * vq[1] - q[2] * vq[2] - q[3] * vq[3];
-  temp[1] = q[0] * vq[1] + q[1] * vq[0] + q[2] * vq[3] - q[3] * vq[2];
-  temp[2] = q[0] * vq[2] - q[1] * vq[3] + q[2] * vq[0] + q[3] * vq[1];
-  temp[3] = q[0] * vq[3] + q[1] * vq[2] - q[2] * vq[1] + q[3] * vq[0];
-  float r[4];
-  r[0] = temp[0] * q_conj[0] - temp[1] * q_conj[1] - temp[2] * q_conj[2] - temp[3] * q_conj[3];
-  r[1] = temp[0] * q_conj[1] + temp[1] * q_conj[0] + temp[2] * q_conj[3] - temp[3] * q_conj[2];
-  r[2] = temp[0] * q_conj[2] - temp[1] * q_conj[3] + temp[2] * q_conj[0] + temp[3] * q_conj[1];
-  r[3] = temp[0] * q_conj[3] + temp[1] * q_conj[2] - temp[2] * q_conj[1] + temp[3] * q_conj[0];
-  result[0] = r[1];
-  result[1] = r[2];
-  result[2] = r[3];
-}
-
-// 重力補正の強化
-void apply_gravity_correction(float acc[3], const float gravity[3], float corrected_acc[3])
-{
-  for (int i = 0; i < 3; i++)
-  {
-    corrected_acc[i] = acc[i] - gravity[i];
-  }
-}
-
-// Yaw（θz）のみを考慮したクォータニオン更新
-void update_yaw_quaternion(const float q[4], float yaw_rate, float dt, float q_next[4])
-{
-  float delta_yaw = yaw_rate * dt;
-  float half_delta_yaw = delta_yaw / 2.0f;
-  float cos_half_yaw = cosf(half_delta_yaw);
-  float sin_half_yaw = sinf(half_delta_yaw);
-
-  // 現在のクォータニオンにYaw回転を適用
-  q_next[0] = cos_half_yaw * q[0] - sin_half_yaw * q[3];
-  q_next[1] = q[1];
-  q_next[2] = q[2];
-  q_next[3] = sin_half_yaw * q[0] + cos_half_yaw * q[3];
-}
-
-// Yaw（θz）のみを考慮したクォータニオン更新
-void update_yaw(float yaw_rate, float dt, float &yaw)
-{
-  yaw += yaw_rate * dt;
-  if (yaw > M_PI)
-    yaw -= 2 * M_PI;
-  else if (yaw < -M_PI)
-    yaw += 2 * M_PI;
-}
-
-// 加速度を世界座標系に変換（Yaw角のみを考慮）
-void transform_acceleration(float acc_x, float acc_y, float yaw, float &world_acc_x, float &world_acc_y)
-{
-  world_acc_x = acc_x * cosf(yaw) - acc_y * sinf(yaw);
-  world_acc_y = acc_x * sinf(yaw) + acc_y * cosf(yaw);
-}
-
-// 加速度を補正する関数
-void correct_acceleration(float &acc_x, float &acc_y, float yaw)
-{
-  // 初期加速度をYaw角に基づいて補正
-  float corrected_x = acc_x - (initial_acc[0] * cosf(yaw) - initial_acc[1] * sinf(yaw));
-  float corrected_y = acc_y - (initial_acc[0] * sinf(yaw) + initial_acc[1] * cosf(yaw));
-  acc_x = corrected_x;
-  acc_y = corrected_y;
-}
-
-// 重力加速度を補正する関数
-void remove_gravity(float &acc_x, float &acc_y, float yaw)
-{
-  // 重力加速度をYaw角に基づいて補正
-  float gravity_x = gravity[0] * cosf(yaw) - gravity[1] * sinf(yaw);
-  float gravity_y = gravity[0] * sinf(yaw) + gravity[1] * cosf(yaw);
-  acc_x -= gravity_x;
-  acc_y -= gravity_y;
-}
-
-// 重力加速度を除去する関数
-void remove_gravity_with_orientation(float acc[3], const float q[4], float corrected_acc[3])
-{
-  // 推定された姿勢（クォータニオン）を使用して重力加速度を除去
-  float gravity[3] = {0.0f, 0.0f, GRAVITY_AMOUNT}; // 重力加速度ベクトル（世界座標系）
-  float rotated_gravity[3];
-  apply_rotation(q, gravity, rotated_gravity); // 重力ベクトルをローカル座標系に変換
-
-  for (int i = 0; i < 3; i++)
-  {
-    corrected_acc[i] = acc[i] - rotated_gravity[i]; // 重力加速度を除去
-  }
-}
-
-// センサデータから自己位置推定の更新を行う
-bool update_state(cxd5602pwbimu_data_t dat)
-{
-  unsigned long now = millis();
-  float dt = (now - last_time) / 1000.0f;
-  last_time = now;
-  if (dt <= 0)
-    dt = 1.0f / IMU_RATE;
-
-  // ラジアン変換（dps -> rad/s）
-  const float PI_F = static_cast<float>(M_PI); // M_PIをfloat型にキャスト
-  float omega[3] = {dat.gx * (PI_F / 180.0f), dat.gy * (PI_F / 180.0f), dat.gz * (PI_F / 180.0f)};
-
-  // クォータニオンの更新（姿勢推定）
-  float new_quaternion[4];
-  runge_kutta_update(quaternion, omega, dt, new_quaternion);
-  for (int i = 0; i < 4; i++)
-  {
-    quaternion[i] = new_quaternion[i];
-  }
-
-  // 加速度データのフィルタリング
-  acc_buf_x[buf_index] = dat.ax;
-  acc_buf_y[buf_index] = dat.ay;
-  acc_buf_z[buf_index] = dat.az; // Z軸データを追加
-  float f_ax = apply_causal_gaussian_filter(acc_buf_x, buf_index);
-  float f_ay = apply_causal_gaussian_filter(acc_buf_y, buf_index);
-  float f_az = apply_causal_gaussian_filter(acc_buf_z, buf_index); // Z軸フィルタリング
-  buf_index = (buf_index + 1) % LIST_SIZE;
-
-  // 初期キャリブレーション：一定期間静止状態と仮定
-  if (!is_initialized)
-  {
-    init_counter++;
-    if (init_counter >= MESUREMENT_FREQUENCY)
-    {
-      gravity[0] = f_ax; // 初期X軸重力加速度を記録
-      gravity[1] = f_ay; // 初期Y軸重力加速度を記録
-      gravity[2] = f_az; // Z軸重力加速度を記録
-      is_initialized = true;
-    }
-    return false;
-  }
-
-  // 重力加速度を除去
-  float acc[3] = {f_ax, f_ay, f_az};
-  float corrected_acc[3];
-  remove_gravity_with_orientation(acc, quaternion, corrected_acc);
-
-  // デバッグ用出力
-  Serial.printf("Debug: Corrected Acc: X=%.6f, Y=%.6f, Z=%.6f\n", corrected_acc[0], corrected_acc[1], corrected_acc[2]);
-
-  // 加速度を世界座標系に変換
-  float world_acc_x, world_acc_y, world_acc_z;
-  apply_rotation(quaternion, corrected_acc, corrected_acc); // 全軸を変換
-  world_acc_x = corrected_acc[0];
-  world_acc_y = corrected_acc[1];
-  world_acc_z = corrected_acc[2];
-
-  // デバッグ用出力
-  Serial.printf("Debug: World Acc: X=%.6f, Y=%.6f, Z=%.6f\n", world_acc_x, world_acc_y, world_acc_z);
-
-  // 速度・位置更新（オイラー積分）
-  velocity[0] += world_acc_x * dt;
-  velocity[1] += world_acc_y * dt;
-  velocity[2] += world_acc_z * dt;
-
-  position[0] += velocity[0] * dt * 1000.0f; // mm単位に変換
-  position[1] += velocity[1] * dt * 1000.0f; // mm単位に変換
-  position[2] += velocity[2] * dt * 1000.0f; // Z軸の位置更新（mm単位に変換）
-
-  // デバッグ用シリアル出力
-  Serial.printf("Debug: AccZ=%.6f, VelZ=%.6f, PosZ=%.6f\n", corrected_acc[2], velocity[2], position[2]);
-
-  // 簡易ゼロ速度補正
   biased_velocity += ACCEL_BIAS_DRIFT * dt;
-  if (fabs(velocity[0]) < biased_velocity &&
-      fabs(velocity[1]) < biased_velocity)
+  if (fabs(target_velocity[0]) < biased_velocity &&
+      fabs(target_velocity[1]) < biased_velocity &&
+      fabs(target_velocity[2]) < biased_velocity)
   {
     zero_velocity_counter++;
   }
@@ -348,106 +159,458 @@ bool update_state(cxd5602pwbimu_data_t dat)
   }
   if (zero_velocity_counter > MESUREMENT_FREQUENCY)
   {
-    velocity[0] = velocity[1] = 0.0f;
+    biased_velocity = 0.0;
     zero_velocity_counter = 0;
-    biased_velocity = 0.0f;
+    return true;
   }
-
-  return true;
+  return false;
 }
 
-// --------------------------------------------------------
-// setup(): センサ初期化、初期設定
-// --------------------------------------------------------
+// 現在の時刻におけるフィルタ結果を計算（x: 入力配列、n: データ数、kernel: ガウスカーネル、K: カーネルサイズ）
+float apply_causal_gaussian_filter(const float *x, int list_num)
+{
+  static float kernel[LIST_SIZE];
+  static bool is_kernel_initialized = false;
+  if (!is_kernel_initialized)
+  {
+    float sum = 0.0;
+    for (int i = 0; i < LIST_SIZE; i++)
+    {
+      kernel[i] = (1.0 / (sqrt(2.0 * M_PI) * SIGMA_K)) * exp(-(i * i) / (2.0 * SIGMA_K * SIGMA_K));
+      sum += kernel[i];
+    }
+    // 正規化
+    for (int i = 0; i < LIST_SIZE; i++)
+    {
+      kernel[i] /= sum;
+    }
+
+    is_kernel_initialized = true;
+  }
+
+  float y_current = 0.0;
+  // 最新のデータが x[n-1] とし、過去方向にカーネルを適用
+  for (int i = 0; i < LIST_SIZE; i++)
+  {
+    int idx = LIST_SIZE - 1 - i;
+    int list_idx = (list_num + idx) % LIST_SIZE;
+    y_current += kernel[i] * x[list_idx];
+  }
+  return y_current;
+}
+
+// 回転行列を使って3次元ベクトルに回転を適用する関数
+void apply_rotation(const float *q, const float *v, float result[3])
+{
+  // クォータニオンの逆を計算
+  float q_conjugate[4] = {q[0], -q[1], -q[2], -q[3]};
+
+  // 入力ベクトルをクォータニオン形式に変換
+  float v_quat[4] = {0.0f, v[0], v[1], v[2]};
+
+  // q * v_quat を計算
+  float temp[4];
+  temp[0] = q[0] * v_quat[0] - q[1] * v_quat[1] - q[2] * v_quat[2] - q[3] * v_quat[3];
+  temp[1] = q[0] * v_quat[1] + q[1] * v_quat[0] + q[2] * v_quat[3] - q[3] * v_quat[2];
+  temp[2] = q[0] * v_quat[2] - q[1] * v_quat[3] + q[2] * v_quat[0] + q[3] * v_quat[1];
+  temp[3] = q[0] * v_quat[3] + q[1] * v_quat[2] - q[2] * v_quat[1] + q[3] * v_quat[0];
+
+  // temp * q_conjugate を計算
+  float rotated[4];
+  rotated[0] = temp[0] * q_conjugate[0] - temp[1] * q_conjugate[1] - temp[2] * q_conjugate[2] - temp[3] * q_conjugate[3];
+  rotated[1] = temp[0] * q_conjugate[1] + temp[1] * q_conjugate[0] + temp[2] * q_conjugate[3] - temp[3] * q_conjugate[2];
+  rotated[2] = temp[0] * q_conjugate[2] - temp[1] * q_conjugate[3] + temp[2] * q_conjugate[0] + temp[3] * q_conjugate[1];
+  rotated[3] = temp[0] * q_conjugate[3] + temp[1] * q_conjugate[2] - temp[2] * q_conjugate[1] + temp[3] * q_conjugate[0];
+
+  // 結果をベクトル形式に変換
+  result[0] = rotated[1];
+  result[1] = rotated[2];
+  result[2] = rotated[3];
+}
+
+bool imu_data_initialize(cxd5602pwbimu_data_t dat)
+{
+  static int initialize_counter = 0;
+  static float initialize_acceleration_x_sum = 0.0;
+  static float initialize_acceleration_y_sum = 0.0;
+  static float initialize_acceleration_z_sum = 0.0;
+  static float initialize_rotation_speed_x_sum = 0.0;
+  static float initialize_rotation_speed_y_sum = 0.0;
+  static float initialize_rotation_speed_z_sum = 0.0;
+  if (initialize_counter < MESUREMENT_FREQUENCY)
+  {
+    initialize_acceleration_x_sum += dat.ax;
+    initialize_acceleration_y_sum += dat.ay;
+    initialize_acceleration_z_sum += dat.az;
+    initialize_rotation_speed_x_sum += dat.gx;
+    initialize_rotation_speed_y_sum += dat.gy;
+    initialize_rotation_speed_z_sum += dat.gz;
+    initialize_counter++;
+
+    return false;
+  }
+  else
+  {
+    estimated_acceleration_x = initialize_acceleration_x_sum / MESUREMENT_FREQUENCY;
+    estimated_acceleration_y = initialize_acceleration_y_sum / MESUREMENT_FREQUENCY;
+    estimated_acceleration_z = initialize_acceleration_z_sum / MESUREMENT_FREQUENCY;
+    float average_acceleration_norm = sqrt(estimated_acceleration_x * estimated_acceleration_x +
+                                           estimated_acceleration_y * estimated_acceleration_y +
+                                           estimated_acceleration_z * estimated_acceleration_z);
+    estimated_rotation_speed_x = initialize_rotation_speed_x_sum / MESUREMENT_FREQUENCY;
+    estimated_rotation_speed_y = initialize_rotation_speed_y_sum / MESUREMENT_FREQUENCY;
+    estimated_rotation_speed_z = initialize_rotation_speed_z_sum / MESUREMENT_FREQUENCY;
+    float dot_product = estimated_acceleration_x * estimated_rotation_speed_x +
+                        estimated_acceleration_y * estimated_rotation_speed_y +
+                        estimated_acceleration_z * estimated_rotation_speed_z;
+    float earth_rotation_speed_x = estimated_rotation_speed_x - dot_product * estimated_acceleration_x / average_acceleration_norm / average_acceleration_norm;
+    float earth_rotation_speed_y = estimated_rotation_speed_y - dot_product * estimated_acceleration_y / average_acceleration_norm / average_acceleration_norm;
+    float earth_rotation_speed_z = estimated_rotation_speed_z - dot_product * estimated_acceleration_z / average_acceleration_norm / average_acceleration_norm;
+    float earth_speed_norm = sqrt(earth_rotation_speed_x * earth_rotation_speed_x +
+                                  earth_rotation_speed_y * earth_rotation_speed_y +
+                                  earth_rotation_speed_z * earth_rotation_speed_z);
+    initialize_counter = 0;
+    initialize_acceleration_x_sum = 0.0f;
+    initialize_acceleration_y_sum = 0.0f;
+    initialize_acceleration_z_sum = 0.0f;
+    initialize_rotation_speed_x_sum = 0.0f;
+    initialize_rotation_speed_y_sum = 0.0f;
+    initialize_rotation_speed_z_sum = 0.0f;
+
+    for (int i = 0; i < LIST_SIZE; i++)
+    {
+      mesuared_acceleration_x[i] = estimated_acceleration_x;
+      mesuared_acceleration_y[i] = estimated_acceleration_y;
+      mesuared_acceleration_z[i] = estimated_acceleration_z;
+      mesuared_rotation_speed_x[i] = estimated_rotation_speed_x;
+      mesuared_rotation_speed_y[i] = estimated_rotation_speed_y;
+      mesuared_rotation_speed_z[i] = estimated_rotation_speed_z;
+    }
+
+    current_gravity[0] = estimated_acceleration_x;
+    current_gravity[1] = estimated_acceleration_y;
+    current_gravity[2] = estimated_acceleration_z;
+
+    // 単位ベクトル計算
+    float z_axis_x = estimated_acceleration_x / average_acceleration_norm;
+    float z_axis_y = estimated_acceleration_y / average_acceleration_norm;
+    float z_axis_z = estimated_acceleration_z / average_acceleration_norm;
+    float y_axis_x = earth_rotation_speed_x / earth_speed_norm;
+    float y_axis_y = earth_rotation_speed_y / earth_speed_norm;
+    float y_axis_z = earth_rotation_speed_z / earth_speed_norm;
+    float x_axis_x = y_axis_y * z_axis_z - y_axis_z * z_axis_y;
+    float x_axis_y = y_axis_z * z_axis_x - y_axis_x * z_axis_z;
+    float x_axis_z = y_axis_x * z_axis_y - y_axis_y * z_axis_x;
+    float trace = x_axis_x + y_axis_y + z_axis_z;
+    if (trace > 0)
+    {
+      float s = sqrt(trace + 1.0) * 2.0;
+      quaternion[0] = 0.25 * s;
+      quaternion[1] = (y_axis_z - z_axis_y) / s;
+      quaternion[2] = (z_axis_x - x_axis_z) / s;
+      quaternion[3] = (x_axis_y - y_axis_x) / s;
+    }
+    else if (x_axis_x > y_axis_y && x_axis_x > z_axis_z)
+    {
+      float s = sqrt(1.0 + x_axis_x - y_axis_y - z_axis_z) * 2.0;
+      quaternion[0] = (y_axis_z - z_axis_y) / s;
+      quaternion[1] = 0.25 * s;
+      quaternion[2] = (x_axis_y + y_axis_x) / s;
+      quaternion[3] = (z_axis_x + x_axis_z) / s;
+    }
+    else if (y_axis_y > z_axis_z)
+    {
+      float s = sqrt(1.0 + y_axis_y - x_axis_x - z_axis_z) * 2.0;
+      quaternion[0] = (z_axis_x - x_axis_z) / s;
+      quaternion[1] = (x_axis_y + y_axis_x) / s;
+      quaternion[2] = 0.25 * s;
+      quaternion[3] = (y_axis_z + z_axis_y) / s;
+    }
+    else
+    {
+      float s = sqrt(1.0 + z_axis_z - x_axis_x - y_axis_y) * 2.0;
+      quaternion[0] = (x_axis_y - y_axis_x) / s;
+      quaternion[1] = (z_axis_x + x_axis_z) / s;
+      quaternion[2] = (y_axis_z + z_axis_y) / s;
+      quaternion[3] = 0.25 * s;
+    }
+    return true;
+  }
+  return false;
+}
+
+void update(cxd5602pwbimu_data_t dat)
+{
+  float dt = 1.0 / MESUREMENT_FREQUENCY;
+  if (old_timestamp == -1)
+  {
+    old_timestamp = dat.timestamp;
+  }
+  else
+  {
+    dt = (dat.timestamp - old_timestamp) / 19200000.0f;
+    old_timestamp = dat.timestamp;
+  }
+
+  mesuared_acceleration_x[current_list_num] = dat.ax;
+  mesuared_acceleration_y[current_list_num] = dat.ay;
+  mesuared_acceleration_z[current_list_num] = dat.az;
+  mesuared_rotation_speed_x[current_list_num] = dat.gx;
+  mesuared_rotation_speed_y[current_list_num] = dat.gy;
+  mesuared_rotation_speed_z[current_list_num] = dat.gz;
+
+  // ガウスフィルタを適用
+  estimated_acceleration_x = apply_causal_gaussian_filter(mesuared_acceleration_x, current_list_num);
+  estimated_acceleration_y = apply_causal_gaussian_filter(mesuared_acceleration_y, current_list_num);
+  estimated_acceleration_z = apply_causal_gaussian_filter(mesuared_acceleration_z, current_list_num);
+  estimated_rotation_speed_x = apply_causal_gaussian_filter(mesuared_rotation_speed_x, current_list_num);
+  estimated_rotation_speed_y = apply_causal_gaussian_filter(mesuared_rotation_speed_y, current_list_num);
+  estimated_rotation_speed_z = apply_causal_gaussian_filter(mesuared_rotation_speed_z, current_list_num);
+
+  // 内積を引く
+  float acceleration_norm = sqrt(estimated_acceleration_x * estimated_acceleration_x +
+                                 estimated_acceleration_y * estimated_acceleration_y +
+                                 estimated_acceleration_z * estimated_acceleration_z);
+  float dot_product = estimated_acceleration_x * estimated_rotation_speed_x +
+                      estimated_acceleration_y * estimated_rotation_speed_y +
+                      estimated_acceleration_z * estimated_rotation_speed_z;
+  float earth_rotation_speed_x = estimated_rotation_speed_x - dot_product * estimated_acceleration_x / acceleration_norm / acceleration_norm;
+  float earth_rotation_speed_y = estimated_rotation_speed_y - dot_product * estimated_acceleration_y / acceleration_norm / acceleration_norm;
+  float earth_rotation_speed_z = estimated_rotation_speed_z - dot_product * estimated_acceleration_z / acceleration_norm / acceleration_norm;
+  float earth_rotation_speed_norm = sqrt(earth_rotation_speed_x * earth_rotation_speed_x +
+                                         earth_rotation_speed_y * earth_rotation_speed_y +
+                                         earth_rotation_speed_z * earth_rotation_speed_z);
+
+  // キャリブレーション条件のチェック
+  if (acceleration_norm < GRAVITY_AMOUNT + ACCEL_NOISE_AMOUNT * 40 &&
+      acceleration_norm > GRAVITY_AMOUNT - ACCEL_NOISE_AMOUNT * 40 &&
+      earth_rotation_speed_norm < EARTH_ROTATION_SPEED_AMOUNT + GYRO_NOISE_AMOUNT * 2.0 &&
+      earth_rotation_speed_norm > EARTH_ROTATION_SPEED_AMOUNT / 2.0)
+  {
+    if (calibrate_counter < MESUREMENT_FREQUENCY / 30)
+    {
+      calibrate_counter++;
+    }
+    else
+    {
+      float normalized_acceleration_x = estimated_acceleration_x / acceleration_norm;
+      float normalized_acceleration_y = estimated_acceleration_y / acceleration_norm;
+      float normalized_acceleration_z = estimated_acceleration_z / acceleration_norm;
+      float normalized_earth_rotation_speed_x = earth_rotation_speed_x / earth_rotation_speed_norm;
+      float normalized_earth_rotation_speed_y = earth_rotation_speed_y / earth_rotation_speed_norm;
+      float normalized_earth_rotation_speed_z = earth_rotation_speed_z / earth_rotation_speed_norm;
+
+      // f(q, acc)
+      float f_q_acc[3] = {
+          2 * (quaternion[1] * quaternion[3] - quaternion[0] * quaternion[2]) - normalized_acceleration_x,
+          2 * (quaternion[0] * quaternion[1] + quaternion[2] * quaternion[3]) - normalized_acceleration_y,
+          2 * (0.5 - quaternion[1] * quaternion[1] - quaternion[2] * quaternion[2]) - normalized_acceleration_z};
+
+      // J(q, acc)
+      float j_q_acc[3][4] = {
+          {2 * quaternion[2], -2 * quaternion[3], 2 * quaternion[0], -2 * quaternion[1]},
+          {2 * quaternion[1], 2 * quaternion[0], 2 * quaternion[3], 2 * quaternion[2]},
+          {0, -4 * quaternion[1], -4 * quaternion[2], 0}};
+      float step_acc[4];
+      for (int i = 0; i < 4; i++)
+      {
+        step_acc[i] = 0.0;
+        for (int j = 0; j < 3; j++)
+        {
+          step_acc[i] += j_q_acc[i][j] * f_q_acc[j];
+        }
+      }
+      float step_acc_norm = sqrt(step_acc[0] * step_acc[0] +
+                                 step_acc[1] * step_acc[1] +
+                                 step_acc[2] * step_acc[2] +
+                                 step_acc[3] * step_acc[3]);
+
+      float f_q_gyro[3] = {
+          2 * (quaternion[1] * quaternion[2] + quaternion[0] * quaternion[3]) - normalized_earth_rotation_speed_x,
+          2 * (0.5 - quaternion[0] * quaternion[0] - quaternion[2] * quaternion[2]) - normalized_earth_rotation_speed_y,
+          2 * (quaternion[2] * quaternion[3] - quaternion[0] * quaternion[1]) - normalized_earth_rotation_speed_z};
+      // J(q, gyro)
+      float j_q_gyro[3][4] = {
+          {2 * quaternion[3], 2 * quaternion[2], 2 * quaternion[1], 2 * quaternion[0]},
+          {2 * quaternion[0], -2 * quaternion[1], 2 * quaternion[2], -2 * quaternion[3]},
+          {-2 * quaternion[1], -2 * quaternion[0], -2 * quaternion[3], -2 * quaternion[2]}};
+      float step_gyro[4];
+      for (int i = 0; i < 4; i++)
+      {
+        step_gyro[i] = 0.0;
+        for (int j = 0; j < 3; j++)
+        {
+          step_gyro[i] += j_q_gyro[i][j] * f_q_gyro[j];
+        }
+      }
+      float step_gyro_norm = sqrt(step_gyro[0] * step_gyro[0] +
+                                  step_gyro[1] * step_gyro[1] +
+                                  step_gyro[2] * step_gyro[2] +
+                                  step_gyro[3] * step_gyro[3]);
+      for (int i = 0; i < 4; i++)
+      {
+        quaternion[i] -= step_acc[i] * ACC_MADGWICK_FILTER_WEIGHT / step_acc_norm * dt;
+        quaternion[i] -= step_gyro[i] * GYRO_MADGWICK_FILTER_WEIGHT / step_gyro_norm * dt;
+      }
+
+      // 正規化
+      float quaternion_norm = sqrt(quaternion[0] * quaternion[0] +
+                                   quaternion[1] * quaternion[1] +
+                                   quaternion[2] * quaternion[2] +
+                                   quaternion[3] * quaternion[3]);
+      for (int i = 0; i < 4; i++)
+      {
+        quaternion[i] /= quaternion_norm;
+      }
+
+      current_gravity[0] = estimated_acceleration_x;
+      current_gravity[1] = estimated_acceleration_y;
+      current_gravity[2] = estimated_acceleration_z;
+
+      velocity[0] = 0.0;
+      velocity[1] = 0.0;
+      velocity[2] = 0.0;
+      calibrate_counter = 0;
+    }
+  }
+  else
+  {
+    calibrate_counter = 0;
+  }
+
+  // クォータニオン更新（更新結果は返り値として受け取る）
+  float estimated_rotation_speed[3] = {estimated_rotation_speed_x, estimated_rotation_speed_y, estimated_rotation_speed_z};
+  float estimated_rotation_speed_minus[3] = {-estimated_rotation_speed_x, -estimated_rotation_speed_y, -estimated_rotation_speed_z};
+  runge_kutta_update(quaternion, estimated_rotation_speed, dt, quaternion);
+  update_vector_rk4(current_gravity, estimated_rotation_speed_minus, dt, current_gravity);
+
+  float acceleration[3] = {estimated_acceleration_x - current_gravity[0], estimated_acceleration_y - current_gravity[1], estimated_acceleration_z - current_gravity[2]};
+  apply_rotation(quaternion, acceleration, acceleration);
+  estimated_acceleration_x = acceleration[0];
+  estimated_acceleration_y = acceleration[1];
+  estimated_acceleration_z = acceleration[2];
+
+  // 速度・位置の更新（単純オイラー積分）
+  velocity[0] += (estimated_acceleration_x + old_acceleration[0]) / 2.0f * dt;
+  velocity[1] += (estimated_acceleration_y + old_acceleration[1]) / 2.0f * dt;
+  velocity[2] += (estimated_acceleration_z + old_acceleration[2]) / 2.0f * dt;
+  position[0] += (velocity[0] + old_velocity[0]) / 2.0f * dt;
+  position[1] += (velocity[1] + old_velocity[1]) / 2.0f * dt;
+  position[2] += (velocity[2] + old_velocity[2]) / 2.0f * dt;
+
+  if (zero_velocity_correction(velocity, dt))
+  {
+    velocity[0] = 0.0;
+    velocity[1] = 0.0;
+    velocity[2] = 0.0;
+  }
+
+  old_acceleration[0] = estimated_acceleration_x;
+  old_acceleration[1] = estimated_acceleration_y;
+  old_acceleration[2] = estimated_acceleration_z;
+  old_velocity[0] = velocity[0];
+  old_velocity[1] = velocity[1];
+  old_velocity[2] = velocity[2];
+
+  current_list_num = (current_list_num + 1) % LIST_SIZE;
+
+  return;
+}
+
+static int start_sensing(int fd, int rate, int adrange, int gdrange,
+                         int nfifos)
+{
+  cxd5602pwbimu_range_t range;
+
+  ioctl(fd, SNIOC_SSAMPRATE, rate);
+  range.accel = adrange;
+  range.gyro = gdrange;
+  ioctl(fd, SNIOC_SDRANGE, (unsigned long)(uintptr_t)&range);
+  ioctl(fd, SNIOC_SFIFOTHRESH, nfifos);
+  ioctl(fd, SNIOC_ENABLE, 1);
+
+  return 0;
+}
+
+static int drop_50msdata(int fd, int samprate)
+{
+  int cnt = samprate / 20; /* data size of 50ms */
+
+  cnt = ((cnt + MAX_NFIFO - 1) / MAX_NFIFO) * MAX_NFIFO;
+  if (cnt == 0)
+    cnt = MAX_NFIFO;
+
+  while (cnt)
+  {
+    read(fd, g_data, sizeof(g_data[0]) * MAX_NFIFO);
+    cnt -= MAX_NFIFO;
+  }
+
+  return 0;
+}
+
 void setup()
 {
   Serial.begin(115200);
-  while (!Serial)
-  {
-  } // シリアル待ち
 
-  int ret = board_cxd5602pwbimu_initialize(5);
-  if (ret < 0)
-  {
-    Serial.println("ERROR: Failed to initialize CXD5602PWBIMU.");
-    return;
-  }
-  fd = open("/dev/imu0", O_RDONLY);
-  if (fd < 0)
-  {
-    Serial.println("ERROR: Could not open /dev/imu0");
-    return;
-  }
-  ret = ioctl(fd, SNIOC_SSAMPRATE, IMU_RATE);
-  if (ret)
-  {
-    Serial.print("ERROR: Set sampling rate failed. ");
-    Serial.println(errno);
-    return;
-  }
-  cxd5602pwbimu_range_t range;
-  range.accel = IMU_ADRANGE;
-  range.gyro = IMU_GDRANGE;
-  ret = ioctl(fd, SNIOC_SDRANGE, (unsigned long)(uintptr_t)&range);
-  if (ret)
-  {
-    Serial.print("ERROR: Set dynamic range failed. ");
-    Serial.println(errno);
-    return;
-  }
-  ret = ioctl(fd, SNIOC_SFIFOTHRESH, IMU_FIFO);
-  if (ret)
-  {
-    Serial.print("ERROR: Set FIFO failed. ");
-    Serial.println(errno);
-    return;
-  }
-  ret = ioctl(fd, SNIOC_ENABLE, 1);
-  if (ret)
-  {
-    Serial.print("ERROR: Enable failed. ");
-    Serial.println(errno);
-    return;
-  }
+  board_cxd5602pwbimu_initialize(5);
 
-  last_time = millis();
-  Serial.println("Start Self-Position Estimation.");
+  devfd = open(CXD5602PWBIMU_DEVPATH, O_RDONLY);
+
+  start_sensing(devfd, MESUREMENT_FREQUENCY, 8, 2000, MAX_NFIFO);
+  drop_50msdata(devfd, MESUREMENT_FREQUENCY);
+  // dump_data(devfd);
+  bool is_initialized = false;
+  while (!is_initialized)
+  {
+    ret = read(devfd, g_data, sizeof(g_data[0]) * MAX_NFIFO);
+    if (ret == sizeof(g_data[0]) * MAX_NFIFO)
+    {
+      for (int i = 0; i < MAX_NFIFO; i++)
+      {
+        is_initialized = imu_data_initialize(g_data[i]);
+      }
+    }
+  }
 }
 
-// --------------------------------------------------------
-// loop(): センサデータ取得，自己位置推定，結果出力
-// --------------------------------------------------------
 void loop()
 {
   static int execute_counter = 0;
-  struct pollfd pfd;
-  pfd.fd = fd;
-  pfd.events = POLLIN;
-  int pret = poll(&pfd, 1, 1); // ポーリングのタイムアウトを1msに短縮
-  if (pret > 0)
+  ret = read(devfd, g_data, sizeof(g_data[0]) * MAX_NFIFO);
+  if (ret == sizeof(g_data[0]) * MAX_NFIFO)
   {
-    cxd5602pwbimu_data_t data;
-    int r = read(fd, &data, sizeof(data));
-    if (r == sizeof(data))
+    for (int i = 0; i < MAX_NFIFO; i++)
     {
-      if (update_state(data))
+      update(g_data[i]);
+
+      execute_counter++;
+      if (execute_counter >= MESUREMENT_FREQUENCY / 30)
       {
-        execute_counter++;
-        if (execute_counter >= MESUREMENT_FREQUENCY / 30)
-        {
-          // データをリアルタイムで送信
-          Serial.printf("%.6f,%.6f,%.6f,%.6f," // クォータニオン
-                        "%.6f,%.6f,%.6f,"      // 加速度 [m/s^2]
-                        "%.6f,%.6f,%.6f,"      // 角速度 [rad/s]
-                        "%.6f,%.6f,%.6f,"      // 位置 [mm]
-                        "%.6f,%.6f,%.6f\n",    // 速度 [mm/s]
-                        quaternion[0], quaternion[1], quaternion[2], quaternion[3],
-                        data.ax, data.ay, data.az,
-                        data.gx, data.gy, data.gz,
-                        position[0], position[1], position[2],
-                        velocity[0], velocity[1], velocity[2]);
-          execute_counter = 0;
-        }
+        Serial.printf("%08x,%08x,%08x,%08x,"
+                      "%08x,%08x,%08x,%08x,"
+                      "%08x,%08x,%08x,%08x,"
+                      "%08x,%08x,%08x,"
+                      "%08x,%08x,%08x\n",
+                      (unsigned int)g_data[i].timestamp,
+                      *(unsigned int *)&g_data[i].temp,
+                      *(unsigned int *)&estimated_rotation_speed_x,
+                      *(unsigned int *)&estimated_rotation_speed_y,
+                      *(unsigned int *)&estimated_rotation_speed_z,
+                      *(unsigned int *)&estimated_acceleration_x,
+                      *(unsigned int *)&estimated_acceleration_y,
+                      *(unsigned int *)&estimated_acceleration_z,
+                      *(unsigned int *)&quaternion[0],
+                      *(unsigned int *)&quaternion[1],
+                      *(unsigned int *)&quaternion[2],
+                      *(unsigned int *)&quaternion[3],
+                      *(unsigned int *)&velocity[0],
+                      *(unsigned int *)&velocity[1],
+                      *(unsigned int *)&velocity[2],
+                      *(unsigned int *)&position[0],
+                      *(unsigned int *)&position[1],
+                      *(unsigned int *)&position[2]);
+        execute_counter = 0;
       }
     }
   }

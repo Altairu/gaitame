@@ -5,8 +5,8 @@
 マイコン用コードは [cxd5602pwbimu_localizer_arduino](https://github.com/hijimasa/cxd5602pwbimu_localizer_arduino) リポジトリから取得し、必要に応じてカスタマイズしています。
 
 ## フォルダ構成
-- `gaitame/cxd5602pwbimu_localizer_arduino/`
-  - マイコン用プログラム (Arduino IDE 用) の `cxd5602pwbimu_localizer_arduino.ino`
+- `gaitame/gaitame/`
+  - マイコン用プログラム (Arduino IDE 用) の `gaitame.ino`
 - `gaitame/src/gaitamepkg/gaitamepkg/`
   - ROS2 ノード用プログラム
     - `serialnode.py`: シリアル通信でマイコンからIMUデータと計算済み姿勢データを受信し、PoseStamped および TF で配信する
@@ -20,12 +20,6 @@
   次に、`rviznode.py` がこの `imu_pose` トピックを購読し、Marker で姿勢情報（オイラー角）を RViz 上に表示します。
 
 ## 導入方法
-
-### IMU を使う方法
-1. **Spresense 環境のセットアップ:**  
-   Spresense の Arduino IDE 用プラグインをインストールし、適切なボード設定を行ってください。
-2. **コードの取得と書き込み:**  
-   [cxd5602pwbimu_localizer_arduino](https://github.com/hijimasa/cxd5602pwbimu_localizer_arduino) リポジトリからコードを取得しArduino IDE で開き、Spresense ボードに書き込みます。
    
 ### ROS2 ノードのセットアップ
 1. **依存関係のインストール:**  
