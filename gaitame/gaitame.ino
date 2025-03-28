@@ -28,7 +28,7 @@
 #define SIGMA_K (LIST_SIZE / 8.0f)
 
 // Madgwick Filterの重み
-#define ACC_MADGWICK_FILTER_WEIGHT 0.11f //(sqrt(3.0f / 4.0f) * GYRO_NOISE_AMOUNT / ACCEL_NOISE_AMOUNT)
+#define ACC_MADGWICK_FILTER_WEIGHT sqrt(3.0f / 4.0f) * (GYRO_NOISE_AMOUNT / ACCEL_NOISE_AMOUNT) // 0.11f
 #define GYRO_MADGWICK_FILTER_WEIGHT 0.00000001f
 
 static cxd5602pwbimu_data_t g_data[MAX_NFIFO];
@@ -36,7 +36,7 @@ int devfd;
 int ret;
 
 // グローバル変数（ゼロ速度補正用）
-float biased_velocity = 0.0;
+float biased_velocity = 0.0f;
 int zero_velocity_counter = 0;
 
 bool is_initialized = false;
@@ -225,7 +225,7 @@ void apply_rotation(const float *q, const float *v, float result[3])
   // 結果をベクトル形式に変換
   result[0] = rotated[1];
   result[1] = rotated[2];
-  result[2] = rotated[3];
+  result[2] = -rotated[3];
 }
 
 bool imu_data_initialize(cxd5602pwbimu_data_t dat)
@@ -404,7 +404,7 @@ void update(cxd5602pwbimu_data_t dat)
       float f_q_acc[3] = {
           2 * (quaternion[1] * quaternion[3] - quaternion[0] * quaternion[2]) - normalized_acceleration_x,
           2 * (quaternion[0] * quaternion[1] + quaternion[2] * quaternion[3]) - normalized_acceleration_y,
-          2 * (0.5 - quaternion[1] * quaternion[1] - quaternion[2] * quaternion[2]) - normalized_acceleration_z};
+          2 * (0.5f - quaternion[1] * quaternion[1] - quaternion[2] * quaternion[2]) - normalized_acceleration_z};
 
       // J(q, acc)
       float j_q_acc[3][4] = {
@@ -427,7 +427,7 @@ void update(cxd5602pwbimu_data_t dat)
 
       float f_q_gyro[3] = {
           2 * (quaternion[1] * quaternion[2] + quaternion[0] * quaternion[3]) - normalized_earth_rotation_speed_x,
-          2 * (0.5 - quaternion[0] * quaternion[0] - quaternion[2] * quaternion[2]) - normalized_earth_rotation_speed_y,
+          2 * (0.5f - quaternion[0] * quaternion[0] - quaternion[2] * quaternion[2]) - normalized_earth_rotation_speed_y,
           2 * (quaternion[2] * quaternion[3] - quaternion[0] * quaternion[1]) - normalized_earth_rotation_speed_z};
       // J(q, gyro)
       float j_q_gyro[3][4] = {

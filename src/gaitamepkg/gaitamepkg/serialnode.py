@@ -19,7 +19,7 @@ class SerialRosNode(Node):
         super().__init__('serial_ros_node')
 
         # パラメータの宣言と取得
-        self.declare_parameter('serial_port', '/dev/ttyUSB0')
+        self.declare_parameter('serial_port', '/dev/ttyUSB1')
         self.declare_parameter('baud_rate', 115200)
         self.declare_parameter('tf_parent_frame', 'world')
         self.declare_parameter('tf_child_frame', 'imu_link')
