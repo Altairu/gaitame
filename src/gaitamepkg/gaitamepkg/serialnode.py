@@ -5,6 +5,7 @@ from geometry_msgs.msg import Pose, TransformStamped, TwistStamped
 import tf2_ros
 import serial
 import struct
+import math
 
 def hex_to_float(hex_str):
     """
@@ -86,6 +87,11 @@ class SerialRosNode(Node):
                 quat_vals = [hex_to_float(p) for p in parts[8:12]]
                 velocity = [hex_to_float(p) for p in parts[12:15]]
                 position = [hex_to_float(p) for p in parts[15:18]]
+
+                # NaNチェック
+                if any(math.isnan(val) for val in angular_velocity + linear_acceleration + quat_vals + velocity + position):
+                    self.get_logger().warn(f"NaN detected in data: {line}")
+                    return
             except ValueError as e:
                 self.get_logger().error(f"Error parsing data: {line}, {e}")
                 return

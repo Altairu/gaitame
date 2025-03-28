@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped, TwistStamped
 from visualization_msgs.msg import Marker
+import math
 
 class RvizNode(Node):
     def __init__(self):
@@ -12,6 +13,12 @@ class RvizNode(Node):
         self.twist_marker_publisher = self.create_publisher(Marker, 'imu_twist_marker', 10)
 
     def pose_callback(self, msg: PoseStamped):
+        # NaNチェック
+        if any(math.isnan(val) for val in [msg.pose.position.x, msg.pose.position.y, msg.pose.position.z,
+                                           msg.pose.orientation.x, msg.pose.orientation.y, msg.pose.orientation.z, msg.pose.orientation.w]):
+            self.get_logger().warn("NaN detected in Pose data, skipping visualization.")
+            return
+
         # デバッグ用ログ: Poseデータを確認
         self.get_logger().info(f"Pose received: x={msg.pose.position.x:.2f} mm, y={msg.pose.position.y:.2f} mm, z={msg.pose.position.z:.2f} mm")
 
@@ -33,6 +40,12 @@ class RvizNode(Node):
         self.pose_marker_publisher.publish(marker)
 
     def twist_callback(self, msg: TwistStamped):
+        # NaNチェック
+        if any(math.isnan(val) for val in [msg.twist.linear.x, msg.twist.linear.y, msg.twist.linear.z,
+                                           msg.twist.angular.x, msg.twist.angular.y, msg.twist.angular.z]):
+            self.get_logger().warn("NaN detected in Twist data, skipping visualization.")
+            return
+
         # デバッグ用ログ: Twistデータを確認
         self.get_logger().info(f"Twist received: linear_x={msg.twist.linear.x:.2f} mm/s, linear_y={msg.twist.linear.y:.2f} mm/s, linear_z={msg.twist.linear.z:.2f} mm/s")
 
